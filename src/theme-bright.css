@@ -1,0 +1,675 @@
+/*
+ * Bright theme: a friendly, daylight card table.
+ * It loads after theme-gothic.css and overrides only the mood: colour, type, shape and shadow.
+ * The gothic file still supplies structure, the Arabic type rules and the right-to-left handling.
+ * Remove the import in main.tsx to go back to the gothic look.
+ */
+
+:root {
+  --leaf: #2f9e68;
+  --leaf-deep: #1c7a4d;
+  --leaf-dark: #145c39;
+  --cream-0: #ffffff;
+  --cream-1: #fdfaf3;
+  --cream-2: #f2ede1;
+  --amber: #ffbe55;
+  --amber-deep: #f0982c;
+  --amber-dark: #c26f12;
+  --berry: #d8574f;
+  --berry-deep: #b2352e;
+  --slate: #24352c;
+  --slate-soft: #6a7d72;
+
+  /* Re-point the shared tokens so every untouched rule picks up the new palette. */
+  --felt: var(--leaf);
+  --felt-light: #46b57c;
+  --felt-dark: #eef4ee;
+  --cream: var(--cream-1);
+  --ink: var(--slate);
+  --muted: var(--slate-soft);
+  --gold: var(--amber);
+  --gold-dark: var(--amber-deep);
+  --brass: #e3d7c0;
+  --brass-dark: var(--amber-dark);
+  --parchment: var(--cream-1);
+  --parchment-light: var(--cream-0);
+  --parchment-dark: var(--cream-2);
+  --sepia: var(--slate);
+  --verdigris: #1f9254;
+  --crimson: var(--berry-deep);
+  --crimson-bright: var(--berry);
+  --danger: #b2352e;
+  --danger-bg: #fdecea;
+  --good: #14794a;
+  --good-bg: #e4f6ec;
+  --warn-bg: #fff3d8;
+  --line: #e0e6e1;
+  --radius: 14px;
+  --page-bg: #eef4ee;
+
+  --font-display: "Nunito", "Segoe UI", system-ui, sans-serif;
+  --font-title: "Baloo 2", "Nunito", "Segoe UI", system-ui, sans-serif;
+  --font-body: "Nunito", "Segoe UI", system-ui, sans-serif;
+
+  /* No lattice and no filigree. The cards should be the busiest thing on screen. */
+  --quatrefoil: none;
+  --corner-tl: none;
+  --corner-tr: none;
+  --corner-br: none;
+  --corner-bl: none;
+  --parchment-paper: linear-gradient(var(--cream-0), var(--cream-1));
+
+  font-size: 17px;
+  line-height: 1.55;
+  color: var(--slate);
+  background: var(--page-bg);
+  scrollbar-color: #c9d6cd var(--page-bg);
+}
+
+body {
+  background: linear-gradient(170deg, #f3f9f4 0%, #e6f1e9 45%, #dcebe2 100%);
+  background-attachment: fixed;
+}
+
+::selection {
+  background: var(--amber);
+  color: var(--slate);
+}
+
+h1,
+h2,
+h3,
+legend {
+  letter-spacing: 0;
+  font-weight: 800;
+}
+
+h2 {
+  border-bottom: 2px solid var(--line);
+}
+
+h3 {
+  color: var(--leaf-deep);
+  font-size: 1rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+h3::before {
+  content: none;
+}
+
+:focus-visible {
+  outline: 3px solid var(--amber-deep);
+  outline-offset: 2px;
+}
+
+.panel :focus-visible,
+.controls :focus-visible,
+.seat-chip :focus-visible {
+  outline-color: var(--leaf-deep);
+}
+
+/* ---------- Buttons ---------- */
+
+.button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--cream-0);
+  color: var(--slate);
+  font-size: 0.92rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  box-shadow: 0 1px 2px rgba(36, 53, 44, 0.12);
+}
+
+.button:hover:not(:disabled) {
+  background: #f4f9f5;
+  border-color: #cfdcd4;
+  box-shadow: 0 3px 8px rgba(36, 53, 44, 0.16);
+}
+
+.button:disabled {
+  opacity: 0.45;
+  box-shadow: none;
+}
+
+.button-primary {
+  background: linear-gradient(180deg, #ffc96f, var(--amber-deep));
+  border-color: transparent;
+  color: #4a2c00;
+  text-shadow: none;
+  box-shadow: 0 2px 0 var(--amber-dark), 0 4px 10px rgba(194, 111, 18, 0.28);
+}
+
+.button-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #ffd485, #f5a63b);
+  border-color: transparent;
+  box-shadow: 0 2px 0 var(--amber-dark), 0 6px 14px rgba(194, 111, 18, 0.35);
+}
+
+.button-quiet,
+.button-quiet:hover:not(:disabled) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--leaf-deep);
+}
+
+.button-small {
+  font-size: 0.82rem;
+}
+
+.button-large {
+  font-size: 1.05rem;
+  letter-spacing: 0;
+}
+
+.button[aria-pressed="true"] {
+  border-color: var(--leaf);
+  background: var(--good-bg);
+  box-shadow: none;
+}
+
+.topbar .button[aria-pressed="true"]::after {
+  content: " ✓";
+}
+
+.button-sort {
+  background: linear-gradient(180deg, #ffffff, #eef7f1);
+  border-color: var(--leaf);
+  color: var(--leaf-deep);
+}
+
+/* ---------- Fields ---------- */
+
+.field {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--slate-soft);
+}
+
+.field input[type="text"],
+.field input[type="number"],
+.field select {
+  border: 2px solid var(--line);
+  border-radius: 12px;
+  background: var(--cream-0);
+  box-shadow: none;
+}
+
+.field input:focus,
+.field select:focus {
+  border-color: var(--leaf);
+}
+
+.settings {
+  border: 2px solid var(--line);
+  border-radius: var(--radius);
+  background: #f8fbf9;
+}
+
+.settings legend {
+  color: var(--leaf-deep);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.note {
+  font-style: normal;
+}
+
+.error {
+  border-radius: 12px;
+  border-width: 1px;
+  border-inline-start-width: 5px;
+}
+
+.tag {
+  border-radius: 999px;
+  border-color: var(--line);
+  background: #f2f6f3;
+  font-size: 0.7rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.tag-you {
+  background: var(--amber);
+  border-color: transparent;
+  color: #4a2c00;
+}
+
+.tag-good {
+  background: var(--good-bg);
+  border-color: #b7e0c7;
+  color: var(--good);
+}
+
+.tag-warn {
+  background: var(--warn-bg);
+  border-color: #f0d79b;
+  color: #8a5a00;
+}
+
+.chips li {
+  border-radius: 999px;
+  border-color: var(--line);
+  background: #f2f6f3;
+  font-size: 0.78rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* ---------- Panels ---------- */
+
+.panel {
+  border: 0;
+  border-radius: 22px;
+  background: var(--cream-0);
+  outline: 0;
+  box-shadow: 0 10px 30px rgba(20, 60, 40, 0.14), 0 2px 6px rgba(20, 60, 40, 0.08);
+}
+
+.home-hero h1 {
+  color: var(--leaf-deep);
+  font-weight: 800;
+  text-shadow: none;
+}
+
+.home-hero p {
+  color: var(--slate-soft);
+  font-style: normal;
+}
+
+.home-hero p::before,
+.home-hero p::after {
+  content: none;
+}
+
+.home > .note {
+  color: var(--slate-soft);
+}
+
+.invite {
+  border: 2px dashed #bfe0cd;
+  border-radius: var(--radius);
+  background: #f3fbf6;
+  box-shadow: none;
+}
+
+.invite-label {
+  letter-spacing: 0.04em;
+  text-transform: none;
+}
+
+.invite-code {
+  color: var(--leaf-deep);
+  text-shadow: none;
+}
+
+.seat-row {
+  border-radius: 14px;
+  border-color: var(--line);
+  background: var(--cream-0);
+}
+
+.seat-number {
+  background: var(--leaf);
+  border-color: transparent;
+  color: #fff;
+}
+
+.overlay {
+  background: rgba(24, 48, 36, 0.45);
+}
+
+.choice-cards {
+  color: var(--slate-soft);
+}
+
+.choice-cards-dark {
+  color: #4a2c00;
+}
+
+/* ---------- Cards ---------- */
+
+.card img {
+  filter: drop-shadow(0 2px 4px rgba(20, 50, 35, 0.22));
+}
+
+.card-selected,
+button.card-selected:hover:not(:disabled) {
+  filter: drop-shadow(0 0 0 var(--amber-deep)) drop-shadow(0 6px 10px rgba(240, 152, 44, 0.55));
+}
+
+.card-check {
+  background: var(--leaf-deep);
+  border-color: #fff;
+  color: #fff;
+}
+
+.card-badge {
+  border-color: transparent;
+  border-radius: 999px;
+  background: var(--amber-deep);
+  color: #fff;
+  font-size: 0.56rem;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.card-represents {
+  border-color: transparent;
+  border-radius: 999px;
+  background: var(--slate);
+  color: #fff;
+}
+
+.card-empty {
+  border-color: rgba(255, 255, 255, 0.6);
+  border-radius: 10px;
+  color: rgba(255, 255, 255, 0.9);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+/* ---------- Game ---------- */
+
+.topbar {
+  background: var(--cream-0);
+  border-bottom: 1px solid var(--line);
+  box-shadow: 0 2px 10px rgba(20, 60, 40, 0.08);
+  color: var(--slate);
+}
+
+.topbar-title strong {
+  color: var(--leaf-deep);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.room-code {
+  color: var(--slate-soft);
+}
+
+.topbar-chips li {
+  background: #f2f6f3;
+  border-color: var(--line);
+  color: var(--slate-soft);
+}
+
+.banner {
+  background: var(--warn-bg);
+  color: #8a5a00;
+  border-bottom: 1px solid #f0d79b;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.seat-chip {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--cream-0);
+  box-shadow: 0 2px 6px rgba(20, 60, 40, 0.08);
+}
+
+.seat-chip-name strong {
+  letter-spacing: 0;
+}
+
+/* The player whose turn it is gets a soft amber ring, not a flicker. */
+.seat-active,
+.seat-active:is(:hover) {
+  border-color: var(--amber-deep);
+  background: #fffaf0;
+  box-shadow: 0 0 0 3px rgba(255, 190, 85, 0.5), 0 4px 14px rgba(240, 152, 44, 0.3);
+  animation: none;
+}
+
+.turn-marker {
+  color: var(--amber-deep);
+}
+
+/* The table: clean green felt, soft edges, nothing competing with the cards. */
+.felt {
+  border: 0;
+  border-radius: 22px;
+  background: linear-gradient(180deg, #3aa872, var(--leaf-deep));
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.25), 0 8px 22px rgba(20, 70, 45, 0.22);
+}
+
+.felt::before {
+  content: none;
+}
+
+.pile {
+  color: #eaf7ef;
+  letter-spacing: 0;
+  text-transform: none;
+  font-weight: 700;
+}
+
+.pile-hint {
+  border-radius: 999px;
+  border-color: transparent;
+  background: var(--amber);
+  color: #4a2c00;
+}
+
+.pile-hint-throw {
+  background: var(--berry);
+  color: #fff;
+}
+
+.pile-throw .card,
+.pile-throw .pile-button {
+  border-radius: 10px;
+  box-shadow: 0 0 0 3px var(--berry), 0 0 14px rgba(216, 87, 79, 0.6);
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgba(255, 190, 85, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 10px rgba(255, 190, 85, 0.9));
+  }
+}
+
+.melds > .note {
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.meld {
+  border: 1px solid rgba(255, 255, 255, 0.28);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: none;
+}
+
+.meld-pending {
+  border-color: var(--amber);
+  border-style: dashed;
+}
+
+.meld-target {
+  border-color: var(--amber);
+  background: rgba(255, 190, 85, 0.3);
+  box-shadow: 0 0 0 2px var(--amber);
+}
+
+.meld-label {
+  color: rgba(255, 255, 255, 0.92);
+  font-style: normal;
+}
+
+.meld-label span:first-child {
+  color: #fff;
+  letter-spacing: 0;
+}
+
+/* Lay a meld here. */
+.meld-drop {
+  border-color: #fff;
+  background: rgba(255, 255, 255, 0.2);
+  color: #fff;
+  box-shadow: 0 0 0 3px rgba(255, 190, 85, 0.55);
+}
+
+.meld-drop:hover:not(:disabled) {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.meld-drop-points {
+  color: #fff3d8;
+}
+
+.controls {
+  border: 0;
+  border-radius: 22px;
+  background: var(--cream-0);
+  box-shadow: 0 -2px 16px rgba(20, 60, 40, 0.1), 0 6px 20px rgba(20, 60, 40, 0.08);
+}
+
+.status {
+  font-size: 1.1rem;
+  font-weight: 800;
+}
+
+.status-mine {
+  border-inline-start: 5px solid var(--amber-deep);
+  border-radius: 12px;
+  background: #fff6e4;
+}
+
+.opening {
+  letter-spacing: 0;
+}
+
+.planner li {
+  border-radius: 999px;
+  border-color: var(--line);
+  background: #f4f8f5;
+  font-size: 0.86rem;
+}
+
+.planner .planner-good {
+  border-color: #b7e0c7;
+}
+
+.planner .planner-warn {
+  border-color: #f0d79b;
+}
+
+.planner .planner-bad {
+  border-color: #f3c3bf;
+}
+
+.hand-group {
+  border-bottom: 3px solid var(--line);
+}
+
+.hand-group-ready {
+  border-bottom-color: var(--leaf);
+}
+
+.hand-group-value {
+  letter-spacing: 0;
+}
+
+.hand-group-play {
+  border-color: transparent;
+  background: linear-gradient(180deg, #ffc96f, var(--amber-deep));
+  color: #4a2c00;
+  box-shadow: 0 2px 6px rgba(194, 111, 18, 0.35);
+}
+
+.hand-slot.drop-before::before,
+.hand-slot.drop-after::after {
+  background: var(--amber-deep);
+  box-shadow: 0 0 0 2px #fff;
+}
+
+.hand-newgroup {
+  border-color: var(--leaf);
+  border-radius: 12px;
+  color: var(--leaf-deep);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.hand-newgroup-active {
+  background: var(--good-bg);
+}
+
+.arrange {
+  border-top: 1px solid var(--line);
+}
+
+.arrange-label {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.log {
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #f4f8f5;
+  color: var(--slate-soft);
+  font-style: normal;
+}
+
+.log summary {
+  color: var(--leaf-deep);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.headline {
+  color: var(--leaf-deep);
+}
+
+.results th {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.results thead th {
+  border-bottom: 2px solid var(--line);
+  color: var(--leaf-deep);
+}
+
+.results th,
+.results td {
+  border-bottom-color: var(--line);
+}
+
+.row-winner {
+  background: var(--good-bg);
+  box-shadow: inset 4px 0 0 var(--leaf);
+}
+
+.floating {
+  box-shadow: 0 6px 20px rgba(20, 60, 40, 0.3);
+}
+
+.language-corner .button {
+  background: var(--cream-0);
+}
+
+/* Arabic keeps Noto Naskh, which needs a touch more size next to Nunito. */
+:root[lang="ar"] {
+  --font-display: "Noto Naskh Arabic", "Traditional Arabic", "Segoe UI", serif;
+  --font-title: "Noto Naskh Arabic", "Traditional Arabic", "Segoe UI", serif;
+  --font-body: "Noto Naskh Arabic", "Traditional Arabic", "Segoe UI", serif;
+  line-height: 1.8;
+}
+
+:root[lang="ar"] .home-hero h1 {
+  font-size: clamp(3rem, 12vw, 4.6rem);
+}

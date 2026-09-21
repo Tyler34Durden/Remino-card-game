@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { Card, JokerAssignments, Play, PublicRoomState, PublicSeat, TableMeld } from "../../shared/types.ts";
 import { cardLabel, handPenalty, isJoker, refLabel } from "../../engine/cards.ts";
+import { bestMeldGrouping } from "../../engine/bot.ts";
 import { canReplaceJoker, interpretAddition, interpretNewMeld, legalDiscards, refOf } from "../../engine/melds.ts";
 import type { MeldInterpretation } from "../../engine/melds.ts";
 import { validatePlays } from "../../engine/plays.ts";
 import type { PlayContext } from "../../engine/plays.ts";
-import { groupCards, layoutByRank, layoutBySuit, loadLayout, moveCard, normalizeLayout, saveLayout, shiftCard } from "../handLayout.ts";
+import { groupCards, loadLayout, moveCard, normalizeLayout, saveLayout } from "../handLayout.ts";
 import type { DropTarget, HandLayout } from "../handLayout.ts";
 import { ltr, t } from "../i18n.ts";
 import { planHand, valueOf } from "../meldPlanner.ts";
@@ -13,7 +14,7 @@ import { localName, serverText } from "../serverText.ts";
 import type { Game } from "../net.ts";
 import { playSound } from "../prefs.ts";
 import type { Prefs } from "../prefs.ts";
-import { CardBack, CardView } from "./CardView.tsx";
+import { CardBack, CardView, cardName } from "./CardView.tsx";
 import { Hand } from "./Hand.tsx";
 
 /** Readings that differ only in which joker sits where are the same choice for the player. */
@@ -43,7 +44,7 @@ interface JokerChoice {
   onPick: (jokerAs: JokerAssignments) => void;
 }
 
-function SeatChip({ seat, room }: { seat: PublicSeat; room: PublicRoomState }) {
+function SeatChip({ seat, room, handValue }: { seat: PublicSeat; room: PublicRoomState; handValue?: number }) {
   const active = room.activeSeat === seat.seat;
   const isMe = seat.seat === room.viewer.seat;
   return (
@@ -61,6 +62,12 @@ function SeatChip({ seat, room }: { seat: PublicSeat; room: PublicRoomState }) {
         </span>
         <span>{t("table.cards", { count: seat.cardCount })}</span>
         <span>{t("table.score", { score: seat.score })}</span>
+        {handValue !== undefined && (
+          <span className="seat-hand-value">
+            <span className="label-long">{t("planner.handValue", { points: handValue })}</span>
+            <span className="label-short">{t("planner.handShort", { points: handValue })}</span>
+          </span>
+        )}
       </div>
       <div className="seat-chip-tags">
         <span className={`tag ${seat.opened ? "tag-good" : ""}`}>{seat.opened ? `✓ ${t("table.opened")}` : t("table.notOpened")}</span>
@@ -134,7 +141,8 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
   useEffect(() => {
     const strip = seatsRef.current;
     if (!strip || strip.scrollWidth <= strip.clientWidth) return;
-    const active = strip.querySelector<HTMLElement>(".seat-active");
+    // Your own chip is pinned to the edge, so never scroll it out of the way for itself.
+    const active = strip.querySelector<HTMLElement>(".seat-active:not(.seat-me)");
     if (active) strip.scrollTo({ left: active.offsetLeft - (strip.clientWidth - active.offsetWidth) / 2, behavior: "smooth" });
   }, [room.activeSeat]);
 
@@ -260,6 +268,15 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
     });
   };
 
+  /** Phase 2: a group that is already a legal meld is played with one tap on its label. */
+  const playGroup = (index: number) => {
+    const byId = new Map(visibleHand.map((c) => [c.id, c]));
+    const group = layout[index].flatMap((id) => byId.get(id) ?? []);
+    if (group.length < 3) return;
+    const cardIds = group.map((c) => c.id);
+    withJokerChoice(interpretNewMeld(group), cardIds, (jokerAs) => ({ kind: "new-meld", cardIds, jokerAs }));
+  };
+
   const newMeld = () => {
     const cardIds = selectedCards.map((c) => c.id);
     const readings = interpretNewMeld(selectedCards);
@@ -317,16 +334,25 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
     await act({ type: "TAKE_DISCARD_AND_PLAY", plays: staged });
   };
 
-  // Status line
+  // A signpost, not a paragraph. The full explanation moves behind the help button.
   let status: string;
+  let why: string | null = null;
   if (!playing) status = "";
   else if (room.viewer.waiting) status = t("table.waiting");
   else if (!myTurn) status = t("turn.other", { name: activeName });
-  else if (taking && room.topDiscard) status = t("turn.taking", { card: ltr(cardLabel(room.topDiscard)) });
-  else if (room.turnPhase === "draw") status = opened || !room.settings.openingRequired ? t("turn.draw") : t("turn.drawUnopened", { points: room.settings.openingThreshold });
-  else if (onlyJokers) status = t("turn.onlyJokers");
-  else if (room.cardSource === "stock") status = opened ? t("turn.afterStock") : t("turn.afterStockUnopened");
-  else status = t("turn.afterDiscard");
+  else if (taking) {
+    status = t("turn.shortTaking");
+    why = room.topDiscard ? t("turn.taking", { card: ltr(cardLabel(room.topDiscard)) }) : null;
+  } else if (room.turnPhase === "draw") {
+    status = t("turn.shortDraw");
+    why = opened || !room.settings.openingRequired ? t("turn.draw") : t("turn.drawUnopened", { points: room.settings.openingThreshold });
+  } else if (onlyJokers) {
+    status = t("turn.shortPass");
+    why = t("turn.onlyJokers");
+  } else {
+    status = t("turn.shortDiscard");
+    why = room.cardSource === "stock" ? (opened ? t("turn.afterStock") : t("turn.afterStockUnopened")) : t("turn.afterDiscard");
+  }
 
   const canDraw = myTurn && room.turnPhase === "draw" && !taking && !busy;
   const stockBlocked = room.stockCount === 0 && room.discardCount <= 1;
@@ -336,10 +362,13 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
   const pendingMeldIds = new Set(visibleMelds.filter((m) => !room.melds.some((r) => r.id === m.id && signature(r) === signature(m))).map((m) => m.id));
   const error = localError ?? game.error;
   const showOpening = taking && !opened;
+  // Tapping the felt plays the selection, so the offer only appears when that selection is a real meld.
+  const selectionMeld = canNewMeld ? interpretNewMeld(selectedCards)[0] : undefined;
 
   return (
     <div className="table">
       <ul className="seats" aria-label={t("lobby.seats")} ref={seatsRef}>
+        {mySeat !== null && me && <SeatChip seat={me} room={room} handValue={playing ? handPenalty(room.hand) : undefined} />}
         {clockwise.map((seat) => (
           <SeatChip key={seat.seat} seat={seat} room={room} />
         ))}
@@ -363,19 +392,30 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
             {canDraw && <span className="pile-hint">{t("action.drawStock")}</span>}
           </div>
 
-          <div className="pile">
-            {room.topDiscard && !taking ? (
+          <div className={`pile${canDiscard ? " pile-throw" : ""}`}>
+            {canDiscard ? (
+              <button
+                type="button"
+                className="pile-button"
+                disabled={busy}
+                onClick={() => void act({ type: "DISCARD_CARD", cardId: selectedCards[0].id })}
+                aria-label={t("action.throwHere", { card: cardName(selectedCards[0]) })}
+              >
+                {room.topDiscard ? <CardView card={room.topDiscard} /> : <span className="card card-empty" />}
+              </button>
+            ) : room.topDiscard && !taking ? (
               <CardView card={room.topDiscard} onClick={canDraw ? startTaking : undefined} actionLabel={canDraw ? t("action.takeDiscard") : undefined} />
             ) : (
               <span className="card card-empty">{taking ? "" : t("table.discardEmpty")}</span>
             )}
             <span className="pile-label">{t("table.discard")}</span>
+            {canDiscard && <span className="pile-hint pile-hint-throw">{t("action.discard")} {ltr(cardLabel(selectedCards[0]))}</span>}
             {canDraw && room.topDiscard && <span className="pile-hint">{t("action.takeDiscard")}</span>}
           </div>
         </div>
 
         <div className="melds" aria-label={t("table.melds")}>
-          {visibleMelds.length === 0 && <p className="note">{t("table.noMelds")}</p>}
+          {visibleMelds.length === 0 && !selectionMeld && <p className="note">{t("table.noMelds")}</p>}
           {visibleMelds.map((meld) => {
             const pending = pendingMeldIds.has(meld.id);
             // The taken discard must go into a new meld, so it is never offered as an addition.
@@ -413,6 +453,13 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
               </div>
             );
           })}
+          {selectionMeld && (
+            <button type="button" className="meld-drop" disabled={busy} onClick={newMeld}>
+              <span className="meld-drop-title">+ {t("action.playHere")}</span>
+              <span className="meld-drop-cards">{selectedCards.map((c) => ltr(cardLabel(c))).join(" ")}</span>
+              <span className="meld-drop-points">{selectionMeld.type === "set" ? t("table.set") : t("table.run")} · {selectionMeld.points}</span>
+            </button>
+          )}
         </div>
       </section>
 
@@ -420,13 +467,12 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
         <p className={`status${myTurn ? " status-mine" : ""}`} role="status" aria-live="polite">
           {status}
         </p>
+        {why && <p className="note hint">{why}</p>}
         {myTurn && room.turnPhase === "draw" && !taking && stockBlocked && <p className="note">{t("turn.stockEmpty")}</p>}
         {myTurn && room.turnPhase === "draw" && !taking && room.topDiscard && <p className="note hint">{t("action.takeWarning")}</p>}
 
-        {mySeat !== null && me && (
+        {mySeat !== null && me && playing && (
           <ul className="planner" aria-label={t("planner.title")}>
-            <li>{t("planner.score", { score: me.score })}</li>
-            {playing && <li>{t("planner.handValue", { points: handPenalty(room.hand) })}</li>}
             {playing && needsOpening && !taking && (
               <li className={plan.readyPoints >= openingNeeded ? "planner-good" : undefined}>{t("planner.ready", { points: plan.readyPoints, needed: openingNeeded })}</li>
             )}
@@ -472,81 +518,58 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
               onToggle={toggle}
               onMove={moveInHand}
               plans={playing ? plan.groups : undefined}
+              onPlayGroup={canNewMeld || (context !== null && (taking || opened)) ? playGroup : undefined}
               discardLabel={discardInReach ? cardLabel(discardInReach) : null}
             />
 
             <div className="actions">
               {taking ? (
                 <>
-                  <button type="button" className="button button-primary" disabled={!canNewMeld || busy} onClick={newMeld}>
-                    {t("action.newMeld")}
-                  </button>
-                  <button type="button" className="button button-primary" disabled={!finalCheck?.ok || busy} onClick={() => void confirmTaking()}>
-                    {t("action.confirm")}
-                  </button>
-                  <button type="button" className="button" disabled={staged.length === 0} onClick={() => setStaged((current) => current.slice(0, -1))}>
-                    {t("action.undo")}
-                  </button>
+                  {finalCheck?.ok && (
+                    <button type="button" className="button button-primary" disabled={busy} onClick={() => void confirmTaking()}>
+                      {t("action.confirm")}
+                    </button>
+                  )}
+                  {staged.length > 0 && (
+                    <button type="button" className="button" onClick={() => setStaged((current) => current.slice(0, -1))}>
+                      {t("action.undo")}
+                    </button>
+                  )}
                   <button type="button" className="button" onClick={cancelTaking}>
                     {t("action.cancel")}
                   </button>
                 </>
               ) : (
-                <>
-                  {myTurn && room.turnPhase === "play" && opened && (
-                    <button type="button" className="button button-primary" disabled={!canNewMeld || busy} onClick={newMeld}>
-                      {t("action.newMeld")}
-                    </button>
-                  )}
-                  {myTurn && room.turnPhase === "play" && !onlyJokers && (
-                    <button type="button" className="button button-primary" disabled={!canDiscard || busy} onClick={() => void act({ type: "DISCARD_CARD", cardId: selectedCards[0].id })}>
-                      {t("action.discard")}
-                      {canDiscard ? ` ${ltr(cardLabel(selectedCards[0]))}` : ""}
-                    </button>
-                  )}
-                  {myTurn && room.turnPhase === "play" && onlyJokers && (
-                    <button type="button" className="button button-primary" disabled={busy} onClick={() => void act({ type: "PASS_TURN" })}>
-                      {t("action.pass")}
-                    </button>
-                  )}
-                </>
+                myTurn &&
+                room.turnPhase === "play" &&
+                onlyJokers && (
+                  <button type="button" className="button button-primary" disabled={busy} onClick={() => void act({ type: "PASS_TURN" })}>
+                    {t("action.pass")}
+                  </button>
+                )
               )}
-              <button type="button" className="button button-quiet" disabled={selected.length === 0} onClick={() => setSelected([])}>
-                {t("action.clear")}
-              </button>
+              {selected.length > 0 && (
+                <button type="button" className="button button-quiet" onClick={() => setSelected([])}>
+                  {t("action.clear")}
+                </button>
+              )}
             </div>
             <div className="arrange" role="toolbar" aria-label={t("hand.arrange")}>
               <span className="arrange-label">{t("hand.arrange")}</span>
-              <button type="button" className="button button-small" disabled={selectedCards.length === 0} onClick={() => arrange(groupCards(layout, selected))}>
-                <span className="label-long">{t("hand.groupSelected")}</span>
-                <span className="label-short">{t("hand.groupShort")}</span>
-              </button>
               <button
                 type="button"
-                className="button button-small"
-                disabled={selectedCards.length !== 1}
-                onClick={() => arrange(shiftCard(layout, selectedCards[0].id, -1))}
-                aria-label={t("hand.moveLeft")}
+                className="button button-small button-sort"
+                onClick={() => arrange(bestMeldGrouping(visibleHand).map((group) => group.map((c) => c.id)))}
+                title={t("action.sortHint")}
               >
-                ◀
+                ✨ {t("action.sort")}
               </button>
-              <button
-                type="button"
-                className="button button-small"
-                disabled={selectedCards.length !== 1}
-                onClick={() => arrange(shiftCard(layout, selectedCards[0].id, 1))}
-                aria-label={t("hand.moveRight")}
-              >
-                ▶
-              </button>
-              <button type="button" className="button button-small" onClick={() => arrange(layoutBySuit(visibleHand))}>
-                <span className="label-long">{t("table.sortSuit")}</span>
-                <span className="label-short">{t("table.sortSuitShort")}</span>
-              </button>
-              <button type="button" className="button button-small" onClick={() => arrange(layoutByRank(visibleHand))}>
-                <span className="label-long">{t("table.sortRank")}</span>
-                <span className="label-short">{t("table.sortRankShort")}</span>
-              </button>
+              {selectedCards.length > 0 && (
+                <button type="button" className="button button-small" onClick={() => arrange(groupCards(layout, selected))}>
+                  <span className="label-long">{t("hand.groupSelected")}</span>
+                  <span className="label-short">{t("hand.groupShort")}</span>
+                </button>
+              )}
               <button type="button" className="button button-small tips-toggle" aria-pressed={tipsOpen} aria-label={t("hand.tips")} onClick={() => setTipsOpen((open) => !open)}>
                 ?
               </button>

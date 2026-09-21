@@ -17,6 +17,8 @@ interface HandProps {
   plans?: readonly GroupPlan[];
   /** Label of the face-up discard, such as "K♣", for groups it would complete. */
   discardLabel?: string | null;
+  /** Plays a whole group in one tap. Absent when no table play is legal right now. */
+  onPlayGroup?: (index: number) => void;
 }
 
 interface DragState {
@@ -36,7 +38,7 @@ const TOUCH_SLOP = 10;
  * The player's hand, shown as the groups they arranged.
  * A mouse drags straight away. A finger must rest on a card briefly first, so the page can still scroll.
  */
-export function Hand({ cards, layout, selected, badgeFor, onToggle, onMove, plans, discardLabel }: HandProps) {
+export function Hand({ cards, layout, selected, badgeFor, onToggle, onMove, plans, discardLabel, onPlayGroup }: HandProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [drag, setDrag] = useState<DragState | null>(null);
   const dragRef = useRef<DragState | null>(null);
@@ -212,6 +214,11 @@ export function Hand({ cards, layout, selected, badgeFor, onToggle, onMove, plan
               </span>
             );
           })}
+          {showValue && onPlayGroup && (
+            <button type="button" className="hand-group-play" onClick={() => onPlayGroup(index)} aria-label={t("action.playGroup")}>
+              {t("action.playHere")}
+            </button>
+          )}
           {captioned && plan && (
             <span className="hand-group-value">
               {showValue && (

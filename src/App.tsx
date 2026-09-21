@@ -13,7 +13,7 @@ import { Table } from "./components/Table.tsx";
 
 export function App() {
   const game = useGame();
-  const { prefs, toggle } = usePrefs();
+  const { prefs, dark, toggle, toggleTheme } = usePrefs();
   const [language, setLanguageState] = useState<Language>(initialLanguage);
   // Every t() call reads the module-level language, so it must be set before the children render.
   setLanguage(language);
@@ -28,6 +28,12 @@ export function App() {
     document.documentElement.lang = language;
     document.title = language === "ar" ? "رومينو — لعبة ورق عبر الإنترنت" : "Romino — Online Card Game";
   }, [language]);
+
+  const themeSwitch = (
+    <button type="button" className="button button-small theme-switch" onClick={toggleTheme}>
+      {dark ? "☀️" : "🌙"} {dark ? t("prefs.light") : t("prefs.dark")}
+    </button>
+  );
 
   const languageSwitch = (
     <button type="button" className="button button-small language-switch" lang={language === "ar" ? "en" : "ar"} onClick={() => setLanguageState(language === "ar" ? "en" : "ar")}>
@@ -75,7 +81,10 @@ export function App() {
   if (!room) {
     return (
       <>
-        <div className="language-corner">{languageSwitch}</div>
+        <div className="language-corner">
+          {themeSwitch}
+          {languageSwitch}
+        </div>
         <Home game={game} onRules={() => setShowRules(true)} />
         {rules}
       </>
@@ -85,7 +94,10 @@ export function App() {
   if (room.status === "lobby") {
     return (
       <>
-        <div className="language-corner">{languageSwitch}</div>
+        <div className="language-corner">
+          {themeSwitch}
+          {languageSwitch}
+        </div>
         <Lobby game={game} room={room} onRules={() => setShowRules(true)} onLeave={leave} />
         {rules}
       </>
@@ -111,6 +123,7 @@ export function App() {
         </button>
         <div className={`topbar-actions${menuOpen ? " topbar-actions-open" : ""}`} id="topbar-menu">
           {languageSwitch}
+          {themeSwitch}
           <button type="button" className="button button-small" aria-pressed={prefs.sound} onClick={() => toggle("sound")}>
             {prefs.sound ? "🔊" : "🔇"} {t("prefs.sound")}
           </button>

@@ -2,9 +2,19 @@ import { useCallback, useEffect, useState } from "react";
 
 const PREFS_KEY = "romino-prefs";
 
+export type ThemeChoice = "system" | "light" | "dark";
+
 export interface Prefs {
   sound: boolean;
   reducedMotion: boolean;
+  theme: ThemeChoice;
+}
+
+/** The preferences that are a plain on or off. */
+export type BooleanPref = "sound" | "reducedMotion";
+
+function systemPrefersDark(): boolean {
+  return typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches;
 }
 
 function systemPrefersReducedMotion(): boolean {
@@ -12,7 +22,7 @@ function systemPrefersReducedMotion(): boolean {
 }
 
 function loadPrefs(): Prefs {
-  const fallback: Prefs = { sound: true, reducedMotion: systemPrefersReducedMotion() };
+  const fallback: Prefs = { sound: true, reducedMotion: systemPrefersReducedMotion(), theme: "system" };
   try {
     const raw = localStorage.getItem(PREFS_KEY);
     return raw ? { ...fallback, ...(JSON.parse(raw) as Partial<Prefs>) } : fallback;
@@ -21,8 +31,26 @@ function loadPrefs(): Prefs {
   }
 }
 
-export function usePrefs(): { prefs: Prefs; toggle: (key: keyof Prefs) => void } {
+export function usePrefs(): { prefs: Prefs; dark: boolean; toggle: (key: BooleanPref) => void; toggleTheme: () => void } {
   const [prefs, setPrefs] = useState<Prefs>(loadPrefs);
+  const [systemDark, setSystemDark] = useState(systemPrefersDark);
+
+  // While the choice is "system", follow the device if it changes theme mid-game.
+  useEffect(() => {
+    if (typeof window.matchMedia !== "function") return;
+    const query = window.matchMedia("(prefers-color-scheme: dark)");
+    const onChange = (event: MediaQueryListEvent) => setSystemDark(event.matches);
+    query.addEventListener("change", onChange);
+    return () => query.removeEventListener("change", onChange);
+  }, []);
+
+  // "system" is resolved here, so the stylesheet only ever needs one dark selector.
+  const dark = prefs.theme === "system" ? systemDark : prefs.theme === "dark";
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = dark ? "dark" : "light";
+    document.documentElement.style.colorScheme = dark ? "dark" : "light";
+  }, [dark]);
 
   useEffect(() => {
     document.documentElement.dataset.reducedMotion = String(prefs.reducedMotion);
@@ -33,8 +61,9 @@ export function usePrefs(): { prefs: Prefs; toggle: (key: keyof Prefs) => void }
     }
   }, [prefs]);
 
-  const toggle = useCallback((key: keyof Prefs) => setPrefs((p) => ({ ...p, [key]: !p[key] })), []);
-  return { prefs, toggle };
+  const toggle = useCallback((key: BooleanPref) => setPrefs((p) => ({ ...p, [key]: !p[key] })), []);
+  const toggleTheme = useCallback(() => setPrefs((p) => ({ ...p, theme: (p.theme === "system" ? systemPrefersDark() : p.theme === "dark") ? "light" : "dark" })), []);
+  return { prefs, dark, toggle, toggleTheme };
 }
 
 let audio: AudioContext | null = null;

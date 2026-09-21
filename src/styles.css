@@ -1052,3 +1052,68 @@ button.card-selected:hover:not(:disabled) {
   animation: none !important;
   transition: none !important;
 }
+
+/* ---------- Places you can put cards ---------- */
+
+/* The spot on the felt where a selected meld is laid down. */
+.meld-drop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  min-width: 9rem;
+  min-height: calc(var(--card-w) * var(--card-ratio) * 0.72);
+  padding: 0.6rem 0.9rem;
+  border: 3px dashed var(--gold);
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.12);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+
+.meld-drop-title {
+  font-weight: 800;
+}
+
+.meld-drop-cards {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+.meld-drop-points {
+  font-weight: 700;
+}
+
+.pile-hint-throw {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* The one-tap button on a hand group that is already a legal meld. */
+.hand-group-play {
+  position: absolute;
+  inset-inline-start: 0.2rem;
+  top: -0.15rem;
+  z-index: 4;
+  padding: 0.05rem 0.5rem;
+  border: 1px solid var(--gold-dark);
+  border-radius: 999px;
+  background: var(--gold);
+  color: var(--ink);
+  font-size: 0.68rem;
+  font-weight: 800;
+  line-height: 1.5;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.seat-hand-value {
+  white-space: nowrap;
+}
+
+.language-corner {
+  display: flex;
+  gap: 0.35rem;
+}

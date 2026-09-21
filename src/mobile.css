@@ -92,7 +92,7 @@
     padding: 0.6rem;
     border: 1px solid var(--brass);
     border-radius: 6px;
-    background: #1a0e14;
+    background: var(--cream-0);
     box-shadow: 0 14px 34px rgba(0, 0, 0, 0.75);
   }
 
@@ -475,11 +475,13 @@
   }
 
   .arrange-label,
-  .arrange .label-long {
+  .arrange .label-long,
+  .seat-hand-value .label-long {
     display: none;
   }
 
-  .arrange .label-short {
+  .arrange .label-short,
+  .seat-hand-value .label-short {
     display: inline;
   }
 
@@ -676,5 +678,62 @@
 
   .actions .button {
     font-size: 0.7rem;
+  }
+}
+
+@media (max-width: 640px) {
+  /* The lay-a-meld target sits with the melds and must stay thumb-sized. */
+  .meld-drop {
+    min-width: 7.5rem;
+    min-height: 3.6rem;
+    padding: 0.45rem 0.6rem;
+    font-size: 0.82rem;
+  }
+
+  .hand-group-play {
+    top: -0.1rem;
+    padding: 0.1rem 0.55rem;
+    font-size: 0.66rem;
+  }
+
+  /* Your own chip is the last in the strip, so keep it in view. */
+  .seat-me {
+    scroll-snap-align: end;
+  }
+
+  .planner li {
+    font-size: 0.78rem;
+  }
+
+  .status {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 640px) {
+  /* Your own chip is pinned to the leading edge while the opponents scroll past it. */
+  .seats .seat-me {
+    position: sticky;
+    inset-inline-start: 0;
+    z-index: 3;
+    flex: 0 0 auto;
+    min-width: 7.4rem;
+    max-width: 9.5rem;
+    overflow: hidden;
+    scroll-snap-align: start;
+    box-shadow: 0 2px 6px rgba(20, 60, 40, 0.18), 0 0 0 4px var(--page-bg);
+  }
+
+  .seats .seat-me::after {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    inset-inline-end: -0.35rem;
+    width: 0.35rem;
+    background: linear-gradient(to right, rgba(20, 60, 40, 0.16), transparent);
+  }
+
+  :root[dir="rtl"] .seats .seat-me::after {
+    background: linear-gradient(to left, rgba(20, 60, 40, 0.16), transparent);
   }
 }

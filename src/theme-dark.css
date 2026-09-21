@@ -1,0 +1,226 @@
+/*
+ * Dark mode for the bright theme.
+ * prefs.ts resolves "system" to an explicit data-theme, so one selector covers every case.
+ * The playing cards are light images by nature, which is wanted: they should be the brightest thing on a dark table.
+ */
+
+:root[data-theme="dark"] {
+  --leaf: #35a06a;
+  --leaf-deep: #62cf96;
+  --leaf-dark: #0f2a1d;
+  --cream-0: #1e2a25;
+  --cream-1: #18211d;
+  --cream-2: #131b18;
+  --amber: #f3b95f;
+  --amber-deep: #dd9a3c;
+  --amber-dark: #a86f1d;
+  --berry: #f08a81;
+  --berry-deep: #d4645a;
+  --slate: #e9f1eb;
+  --slate-soft: #9db0a5;
+  --page-bg: #0e1512;
+
+  --felt: #1f6e4a;
+  --felt-light: #2b8a5e;
+  --felt-dark: var(--page-bg);
+  --cream: var(--cream-1);
+  --ink: var(--slate);
+  --muted: var(--slate-soft);
+  --gold: var(--amber);
+  --gold-dark: var(--amber-deep);
+  --brass: #3a4a42;
+  --brass-dark: var(--amber-dark);
+  --parchment: var(--cream-1);
+  --parchment-light: var(--cream-0);
+  --parchment-dark: var(--cream-2);
+  --sepia: var(--slate);
+  --verdigris: #3fb87a;
+  --crimson: var(--berry);
+  --crimson-bright: #ff9c93;
+  --danger: #ffa79f;
+  --danger-bg: #3a1e1b;
+  --good: #7fdcac;
+  --good-bg: #163527;
+  --warn-bg: #3b3017;
+  --line: #31413a;
+  --parchment-paper: linear-gradient(var(--cream-0), var(--cream-1));
+
+  color: var(--slate);
+  background: var(--page-bg);
+  scrollbar-color: #3a4a42 var(--page-bg);
+}
+
+:root[data-theme="dark"] body {
+  background: linear-gradient(170deg, #142019 0%, #101a15 45%, #0c1310 100%);
+}
+
+/* ---------- Surfaces ---------- */
+
+:root[data-theme="dark"] .panel {
+  background: var(--cream-0);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+:root[data-theme="dark"] .topbar {
+  background: var(--cream-0);
+  border-bottom-color: var(--line);
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.45);
+}
+
+:root[data-theme="dark"] .controls {
+  background: var(--cream-0);
+  box-shadow: 0 -2px 18px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+:root[data-theme="dark"] .seat-chip {
+  background: var(--cream-0);
+  border-color: var(--line);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme="dark"] .seat-active {
+  background: #2a2519;
+  border-color: var(--amber-deep);
+  box-shadow: 0 0 0 3px rgba(243, 185, 95, 0.4), 0 4px 16px rgba(0, 0, 0, 0.5);
+}
+
+:root[data-theme="dark"] .seat-row,
+:root[data-theme="dark"] .field input[type="text"],
+:root[data-theme="dark"] .field input[type="number"],
+:root[data-theme="dark"] .field select {
+  background: #16201c;
+  border-color: var(--line);
+  color: var(--slate);
+}
+
+:root[data-theme="dark"] .settings {
+  background: #16201c;
+  border-color: var(--line);
+}
+
+:root[data-theme="dark"] .invite {
+  background: #16241d;
+  border-color: #2f5f47;
+}
+
+/* ---------- The table ---------- */
+
+:root[data-theme="dark"] .felt {
+  background: linear-gradient(180deg, #277d55, #17563a);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.12), 0 8px 26px rgba(0, 0, 0, 0.55);
+}
+
+:root[data-theme="dark"] .meld {
+  background: rgba(255, 255, 255, 0.09);
+  border-color: rgba(255, 255, 255, 0.18);
+}
+
+:root[data-theme="dark"] .meld-target {
+  background: rgba(243, 185, 95, 0.24);
+}
+
+:root[data-theme="dark"] .card img {
+  filter: drop-shadow(0 2px 6px rgba(0, 0, 0, 0.7));
+}
+
+/* ---------- Small surfaces ---------- */
+
+:root[data-theme="dark"] .button {
+  background: #24312b;
+  border-color: var(--line);
+  color: var(--slate);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme="dark"] .button:hover:not(:disabled) {
+  background: #2c3b34;
+  border-color: #46584f;
+}
+
+:root[data-theme="dark"] .button-primary {
+  color: #2a1a00;
+}
+
+:root[data-theme="dark"] .button-quiet,
+:root[data-theme="dark"] .button-quiet:hover:not(:disabled) {
+  background: transparent;
+  border-color: transparent;
+  color: var(--leaf-deep);
+}
+
+:root[data-theme="dark"] .button-sort {
+  background: #1d2f26;
+  border-color: var(--leaf);
+  color: var(--leaf-deep);
+}
+
+:root[data-theme="dark"] .button[aria-pressed="true"] {
+  background: var(--good-bg);
+  border-color: var(--leaf);
+}
+
+:root[data-theme="dark"] :is(.tag, .chips li, .topbar-chips li, .planner li, .log) {
+  background: #22302a;
+  border-color: var(--line);
+  color: var(--slate-soft);
+}
+
+:root[data-theme="dark"] .tag-you {
+  background: var(--amber);
+  color: #2a1a00;
+  border-color: transparent;
+}
+
+:root[data-theme="dark"] .tag-good {
+  background: var(--good-bg);
+  border-color: #2f6b4b;
+  color: var(--good);
+}
+
+:root[data-theme="dark"] .tag-warn {
+  background: var(--warn-bg);
+  border-color: #6b5520;
+  color: #f1c97a;
+}
+
+:root[data-theme="dark"] .status-mine {
+  background: #2a2519;
+}
+
+:root[data-theme="dark"] .hand-group {
+  border-bottom-color: var(--line);
+}
+
+:root[data-theme="dark"] .hand-newgroup {
+  background: var(--cream-0);
+  color: var(--leaf-deep);
+}
+
+:root[data-theme="dark"] .hand-newgroup-active {
+  background: var(--good-bg);
+}
+
+:root[data-theme="dark"] .row-winner {
+  background: var(--good-bg);
+}
+
+:root[data-theme="dark"] .overlay {
+  background: rgba(0, 0, 0, 0.66);
+}
+
+:root[data-theme="dark"] .card-check {
+  border-color: var(--cream-0);
+}
+
+:root[data-theme="dark"] .card-represents {
+  background: #0d1411;
+}
+
+:root[data-theme="dark"] .seat-number {
+  color: #0e1512;
+}
+
+:root[data-theme="dark"] .banner {
+  color: #f1c97a;
+  border-bottom-color: #6b5520;
+}

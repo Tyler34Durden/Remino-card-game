@@ -57,6 +57,18 @@ Above the hand the player sees their own cumulative score and what the cards in 
 
 The calculator uses the same meld rules as the server and never sends anything. A test plays the calculator's plan against the engine and checks that the server opens with exactly the promised points.
 
+### Placing a card
+
+There is one rule for every move: tap cards to pick them up, then tap where they go. A meld on the table adds them, the felt lays a new meld, the discard pile throws, and a joker marked Swap hands the joker over. `Table.tsx` renders the felt target only when the selection is a legal meld, and the pile only accepts a throw when that discard is legal, so an illegal move has nothing to tap.
+
+A hand group that is already a legal meld carries its own Play button, so a whole meld goes down in one tap. Sort uses `bestMeldGrouping` from `engine/bot.ts`, the same search the bots use, to arrange the hand into its melds and leave the rest in suit order.
+
+### Look
+
+`src/theme-gothic.css` holds the original dark look and the Arabic and right-to-left rules. `src/theme-bright.css` loads after it and overrides only the mood: a daylight palette, rounded shapes, soft shadows, and Nunito with Baloo 2 for the title. Arabic keeps Noto Naskh Arabic. Removing the `theme-bright.css` import in `main.tsx` returns the game to the gothic look.
+
+`src/theme-dark.css` is the dark palette. It uses a single `:root[data-theme="dark"]` selector, because `prefs.ts` resolves the three-way choice of system, light and dark into an explicit attribute on the page. A toggle sits beside the language switch on the home and lobby screens and in the top bar during a match. It starts from the device setting and follows it while the player has not chosen, then remembers their choice.
+
 ### Phone layout
 
 `src/mobile.css` holds the phone layout. Everything in it sits inside a `max-width: 640px` query, so the desktop layout never changes. On a phone the whole game fits one screen:

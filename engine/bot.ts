@@ -1,4 +1,4 @@
-import type { Card, CardSource, GameAction, Play, RoomSettings, TableMeld, TurnPhase } from "../shared/types.ts";
+import type { Card, CardSource, GameAction, Play, RoomSettings, Suit, TableMeld, TurnPhase } from "../shared/types.ts";
 import { SUITS, isJoker, penaltyValue, rankNumber } from "./cards.ts";
 import type { MatchState } from "./game.ts";
 import { canReplaceJoker, interpretAddition, interpretNewMeld, legalDiscards } from "./melds.ts";
@@ -164,6 +164,24 @@ function materialise(combination: Combination, hand: readonly Card[]): Card[][] 
     groups.push([...naturals, ...jokers.splice(0, needed)]);
   }
   return groups;
+}
+
+/**
+ * The best set of melds the hand can form right now, followed by the cards left over.
+ * Used by the client's Sort button, so a player never has to find their own melds by eye.
+ */
+export function bestMeldGrouping(hand: readonly Card[]): Card[][] {
+  const pool = findCandidates(hand, null);
+  const naturals = hand.filter((c) => !isJoker(c));
+  const combination = bestCombination(pool, (c) => c.points, naturals.length, hand.length - naturals.length, null);
+  const groups = combination ? materialise(combination, hand) : null;
+  if (!groups || groups.length === 0) return [hand.slice()];
+  const used = new Set(groups.flat().map((c) => c.id));
+  const order = (c: Card) => (isJoker(c) ? [9, 99] : [SUITS.indexOf(c.suit as Suit), rankNumber(c.rank as Exclude<Card["rank"], "JOKER">)]);
+  const rest = hand
+    .filter((c) => !used.has(c.id))
+    .sort((a, b) => order(a)[0] - order(b)[0] || order(a)[1] - order(b)[1]);
+  return rest.length > 0 ? [...groups, rest] : groups;
 }
 
 function findAddition(card: Card, melds: readonly TableMeld[]): TableMeld | null {
