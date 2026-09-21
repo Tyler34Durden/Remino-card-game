@@ -1,0 +1,680 @@
+/*
+ * Phone layout.
+ * Everything that changes the look lives inside the max-width query, so the desktop layout is untouched.
+ * The goal on a phone: the whole game fits one screen, the hand and the action buttons stay under the thumb,
+ * and nothing needs a scroll to reach.
+ */
+
+/* Controls and short labels that exist only for phones. */
+.menu-toggle,
+.tips-toggle,
+.label-short {
+  display: none;
+}
+
+/* Touch screens have no hover, and a tapped card would otherwise stay lifted. */
+@media (hover: none) {
+  button.card:hover:not(:disabled):not(.card-selected) {
+    transform: none;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    font-size: 16px;
+  }
+
+  button,
+  .card {
+    touch-action: manipulation;
+  }
+
+  /* iOS zooms into any field whose text is smaller than 16px. */
+  .field input[type="text"],
+  .field input[type="number"],
+  .field select {
+    font-size: 16px;
+    min-height: 48px;
+  }
+
+  /* ---------- Top bar: one slim row with a menu ---------- */
+
+  .game {
+    min-height: 100dvh;
+  }
+
+  .topbar {
+    position: relative;
+    flex-wrap: nowrap;
+    gap: 0.5rem;
+    padding: 0.3rem 0.6rem;
+    padding-top: calc(0.3rem + env(safe-area-inset-top));
+  }
+
+  .topbar-title {
+    gap: 0.45rem;
+    min-width: 0;
+    font-size: 0.85rem;
+  }
+
+  .room-code {
+    font-size: 0.8rem;
+  }
+
+  .topbar-chips {
+    display: none;
+  }
+
+  .menu-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-inline-start: auto;
+    min-width: 44px;
+    min-height: 40px;
+    font-size: 1.05rem;
+    letter-spacing: 0;
+  }
+
+  .topbar-actions {
+    display: none;
+  }
+
+  .topbar-actions.topbar-actions-open {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.45rem;
+    position: absolute;
+    top: 100%;
+    inset-inline: 0.5rem;
+    z-index: 30;
+    margin: 0.3rem 0 0;
+    padding: 0.6rem;
+    border: 1px solid var(--brass);
+    border-radius: 6px;
+    background: #1a0e14;
+    box-shadow: 0 14px 34px rgba(0, 0, 0, 0.75);
+  }
+
+  .topbar-actions-open .button {
+    min-height: 46px;
+    width: 100%;
+  }
+
+  /* ---------- Table column ---------- */
+
+  .table {
+    gap: 0.45rem;
+    padding: 0.45rem 0.5rem 0;
+  }
+
+  /* Opponents: a single strip that scrolls sideways when there are many. */
+  .seats {
+    display: flex;
+    gap: 0.35rem;
+    overflow-x: auto;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+    padding: 3px;
+    margin: -3px;
+  }
+
+  .seats::-webkit-scrollbar {
+    display: none;
+  }
+
+  .seat-chip {
+    flex: 1 0 0;
+    min-width: 6.5rem;
+    scroll-snap-align: center;
+    padding: 0.28rem 0.45rem;
+    font-size: 0.72rem;
+    line-height: 1.25;
+  }
+
+  .seat-chip-name {
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+
+  .seat-chip-name strong {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: 0.74rem;
+  }
+
+  /* The name already says "Bot", and the dealer matters little on a small screen. */
+  .seat-chip-name .tag:not(.tag-you) {
+    display: none;
+  }
+
+  .seat-chip-info {
+    margin: 0.05rem 0;
+    gap: 0.4rem;
+    white-space: nowrap;
+  }
+
+  .mini-cards {
+    display: none;
+  }
+
+  .seat-chip-tags {
+    display: flex;
+    gap: 0.2rem;
+    overflow: hidden;
+    white-space: nowrap;
+  }
+
+  .seat-chip-tags .tag {
+    margin: 0;
+    font-size: 0.54rem;
+    padding: 0 0.3rem;
+  }
+
+  /* The table: piles on top, melds underneath at full width. */
+  .felt {
+    flex: 1 1 auto;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+    min-height: 0;
+    padding: 0.75rem 0.6rem 0.6rem;
+  }
+
+  .felt::before {
+    inset: 4px;
+    background-size: 26px 26px;
+    opacity: 0.7;
+  }
+
+  .piles {
+    --card-w: 60px;
+    align-self: center;
+    gap: 1.1rem;
+  }
+
+  .pile {
+    gap: 0.15rem;
+    font-size: 0.56rem;
+    max-width: 6.5rem;
+  }
+
+  .pile-hint {
+    padding: 0.2rem 0.45rem;
+    font-size: 0.6rem;
+  }
+
+  .melds {
+    --card-w: 60px;
+    gap: 0.35rem;
+    justify-content: center;
+  }
+
+  .meld {
+    padding: 0.22rem 0.3rem 0.3rem;
+  }
+
+  .meld-label {
+    gap: 0.3rem;
+    margin-bottom: 0.1rem;
+    font-size: 0.58rem;
+  }
+
+  .meld-add {
+    min-height: 40px;
+    margin-top: 0.25rem;
+  }
+
+  /* The log sits above the dock, folded to one line. */
+  .log {
+    order: 3;
+    padding: 0.15rem 0.6rem;
+    font-size: 0.8rem;
+  }
+
+  .log summary {
+    min-height: 30px;
+  }
+
+  .log[open] {
+    max-height: 9.5rem;
+    overflow-y: auto;
+  }
+
+  /* ---------- The dock: status, hand, and actions stay under the thumb ---------- */
+
+  .controls {
+    order: 4;
+    position: sticky;
+    bottom: 0;
+    z-index: 6;
+    margin: 0 -0.5rem;
+    padding: 0.5rem 0.6rem calc(0.55rem + env(safe-area-inset-bottom));
+    border-radius: 14px 14px 0 0;
+    border-bottom: 0;
+    box-shadow: inset 0 0 0 3px var(--parchment), inset 0 0 0 4px rgba(138, 106, 47, 0.6), 0 -10px 26px rgba(0, 0, 0, 0.65);
+  }
+
+  .status {
+    margin: 0 0 0.3rem;
+    font-size: 0.9rem;
+    line-height: 1.3;
+  }
+
+  .status-mine {
+    padding: 0.3rem 0.5rem;
+    border-inline-start-width: 5px;
+  }
+
+  .controls .note,
+  .controls .opening,
+  .controls .error {
+    margin-bottom: 0.3rem;
+    font-size: 0.82rem;
+    line-height: 1.3;
+  }
+
+  .controls .error {
+    padding: 0.35rem 0.5rem;
+  }
+
+  /* Long tips are one tap away instead of always on screen. */
+  .controls .hint {
+    display: none;
+  }
+
+  .controls.tips-open .hint {
+    display: block;
+  }
+
+  .tips-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-inline-start: auto;
+  }
+
+  /*
+   * The hand is one fan across the screen. The step between cards shrinks as the hand grows,
+   * so fourteen or fifteen cards still fit without scrolling. Groups stay visible as small gaps.
+   */
+  .hand {
+    --card-w: clamp(54px, 16.5vw, 72px);
+    --group-gap: 9px;
+    --step: clamp(
+      17px,
+      calc((100vw - 2.3rem - var(--card-w) - (var(--hand-groups, 1) - 1) * var(--group-gap)) / max(var(--hand-count, 2) - 1, 1)),
+      calc(var(--card-w) * 0.74)
+    );
+    flex-wrap: nowrap;
+    column-gap: 0;
+    row-gap: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scrollbar-width: none;
+    min-height: 0;
+    padding: 1.05rem 0.15rem 0.3rem;
+  }
+
+  .hand::-webkit-scrollbar {
+    display: none;
+  }
+
+  .hand-group {
+    position: relative;
+    flex: none;
+    flex-wrap: nowrap;
+    padding: 0 0 0.35rem;
+    border-bottom: 0;
+  }
+
+  .hand-group + .hand-group {
+    margin-left: calc(var(--step) - var(--card-w) + var(--group-gap));
+  }
+
+  .hand-slot {
+    margin-inline-start: calc(var(--step) - var(--card-w));
+  }
+
+  .hand-slot:first-child {
+    margin-inline-start: 0;
+  }
+
+  /* The bracket under a group covers only the part of it that is not hidden by the next group. */
+  .hand-group::after {
+    content: "";
+    position: absolute;
+    left: 2px;
+    bottom: 0;
+    width: calc(100% - var(--card-w) + var(--step) - 5px);
+    border-bottom: 3px double var(--brass);
+    pointer-events: none;
+  }
+
+  .hand-group:last-of-type::after {
+    width: calc(100% - 4px);
+  }
+
+  .hand-group:only-of-type::after {
+    display: none;
+  }
+
+  .card-selected,
+  button.card-selected:hover:not(:disabled) {
+    transform: translateY(-13px);
+  }
+
+  .card-check {
+    width: 1.05rem;
+    height: 1.05rem;
+    font-size: 0.68rem;
+  }
+
+  .hand .card-badge {
+    font-size: 0.46rem;
+    padding: 0.05rem 0.2rem;
+  }
+
+  /* While dragging, the new-group target floats in a band above the fan, where a thumb can reach it. */
+  .hand-dragging {
+    padding-top: 2.7rem;
+  }
+
+  .hand-newgroup {
+    position: sticky;
+    right: 0;
+    order: 99;
+    flex: none;
+    align-self: flex-start;
+    width: auto;
+    min-height: 0;
+    height: 2.2rem;
+    margin-top: -2.5rem;
+    margin-left: 0.4rem;
+    padding: 0 0.7rem;
+    white-space: nowrap;
+    background: var(--parchment-light);
+    z-index: 8;
+  }
+
+  /* Score line and calculator: one compact row of chips. */
+  .planner {
+    gap: 0.25rem;
+    margin-bottom: 0.3rem;
+  }
+
+  .planner li {
+    padding: 0.05rem 0.4rem;
+    font-size: 0.74rem;
+    line-height: 1.45;
+  }
+
+  /* In the one-row fan a group can be narrow, so its verdict drops the words and keeps the numbers. */
+  .hand-group-valued {
+    padding-bottom: 1.25rem;
+  }
+
+  .hand-group-value {
+    left: 2px;
+    bottom: 5px;
+    gap: 0.25rem;
+    font-size: 0.6rem;
+  }
+
+  .hand-group-value .value-type {
+    display: none;
+  }
+
+  .hand-group-ready::after {
+    border-bottom-color: var(--verdigris);
+  }
+
+  /* Two big buttons per row. */
+  .actions {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.4rem;
+    margin-top: 0.25rem;
+  }
+
+  .actions .button {
+    min-height: 48px;
+    padding: 0.4rem 0.5rem;
+    font-size: 0.78rem;
+  }
+
+  .actions .button:only-child {
+    grid-column: 1 / -1;
+  }
+
+  .actions .button-quiet {
+    min-height: 40px;
+    grid-column: 1 / -1;
+  }
+
+  .actions .button-quiet:disabled {
+    display: none;
+  }
+
+  /* Hand tools: one compact strip. */
+  .arrange {
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    gap: 0.3rem;
+    margin-top: 0.35rem;
+    padding-top: 0.35rem;
+    border-top-width: 1px;
+    border-top-style: solid;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+
+  .arrange::-webkit-scrollbar {
+    display: none;
+  }
+
+  .arrange-label,
+  .arrange .label-long {
+    display: none;
+  }
+
+  .arrange .label-short {
+    display: inline;
+  }
+
+  .arrange .button {
+    flex: 1 1 auto;
+  }
+
+  .arrange .button {
+    flex: none;
+    min-height: 40px;
+    padding: 0.2rem 0.6rem;
+    font-size: 0.6rem;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+  }
+
+  :root[lang="ar"] .arrange .button {
+    font-size: 0.82rem;
+  }
+
+  :root[lang="ar"] .seat-chip {
+    font-size: 0.68rem;
+  }
+
+  :root[lang="ar"] .pile,
+  :root[lang="ar"] .pile-hint {
+    font-size: 0.74rem;
+  }
+
+  :root[lang="ar"] .actions .button {
+    font-size: 1rem;
+  }
+
+  /* The show-results button must not sit on top of the dock. */
+  .floating {
+    top: calc(3.2rem + env(safe-area-inset-top));
+    bottom: auto;
+  }
+
+  /* ---------- Dialogs become bottom sheets ---------- */
+
+  .overlay {
+    align-items: flex-end;
+    padding: 0;
+  }
+
+  .overlay .panel {
+    width: 100%;
+    max-height: 92dvh;
+    border-radius: 16px 16px 0 0;
+    padding: 1.2rem 1rem calc(1.2rem + env(safe-area-inset-bottom));
+    outline-offset: -6px;
+    box-shadow: 0 -12px 40px rgba(0, 0, 0, 0.75);
+  }
+
+  .overlay .stack .button,
+  .overlay .row .button {
+    min-height: 48px;
+  }
+
+  /* Results: one card per player instead of a wide table. */
+  .results table,
+  .results tbody {
+    display: block;
+  }
+
+  .results thead {
+    display: none;
+  }
+
+  .results tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto auto;
+    grid-template-areas:
+      "name penalty total"
+      "hand hand hand";
+    align-items: center;
+    gap: 0.25rem 0.8rem;
+    padding: 0.55rem 0.4rem;
+    border-bottom: 1px solid rgba(138, 106, 47, 0.45);
+  }
+
+  .results tbody th,
+  .results tbody td {
+    display: block;
+    padding: 0;
+    border: 0;
+  }
+
+  .results tbody th {
+    grid-area: name;
+  }
+
+  .results tbody td:nth-of-type(1) {
+    grid-area: hand;
+  }
+
+  .results tbody td:nth-of-type(2) {
+    grid-area: penalty;
+    color: var(--muted);
+  }
+
+  .results tbody td:nth-of-type(3) {
+    grid-area: total;
+    font-size: 1.15rem;
+  }
+
+  .result-hand {
+    --card-w: 56px;
+    padding-inline-start: 14px;
+  }
+
+  .result-hand .card {
+    margin-inline-start: -14px;
+  }
+
+  .results .row-end {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.4rem;
+  }
+
+  .results .row-end .button-primary {
+    order: -1;
+  }
+
+  .results .row-end .button-quiet {
+    order: 5;
+  }
+
+  /* ---------- Home and lobby ---------- */
+
+  .home,
+  .lobby {
+    min-height: 100dvh;
+    justify-content: flex-start;
+    gap: 0.9rem;
+    padding: calc(3.4rem + env(safe-area-inset-top)) 0.7rem calc(1rem + env(safe-area-inset-bottom));
+  }
+
+  .home {
+    justify-content: center;
+  }
+
+  .panel {
+    padding: 1.25rem 1rem;
+  }
+
+  .panel-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .invite {
+    padding: 0.7rem;
+  }
+
+  .invite-code {
+    font-size: 1.8rem;
+    letter-spacing: 0.22em;
+  }
+
+  .invite .row .button {
+    flex: 1;
+  }
+
+  .join .button {
+    min-height: 48px;
+  }
+
+  /* The host should not have to scroll past the settings to find the start button. */
+  .lobby .button-large {
+    position: sticky;
+    bottom: calc(0.6rem + env(safe-area-inset-bottom));
+    z-index: 5;
+    box-shadow: 0 0 0 3px var(--parchment), 0 8px 22px rgba(0, 0, 0, 0.55);
+  }
+
+  .language-corner {
+    top: calc(0.5rem + env(safe-area-inset-top));
+    inset-inline-end: 0.5rem;
+  }
+}
+
+/* Very narrow phones. */
+@media (max-width: 360px) {
+  .hand {
+    --card-w: 52px;
+  }
+
+  .piles,
+  .melds {
+    --card-w: 54px;
+  }
+
+  .actions .button {
+    font-size: 0.7rem;
+  }
+}

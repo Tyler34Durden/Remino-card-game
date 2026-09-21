@@ -1,0 +1,953 @@
+/*
+ * Victorian gothic theme.
+ * This file only changes how things look. Layout lives in styles.css, which is loaded first.
+ * Remove the import in main.tsx to return to the classic green-felt look.
+ */
+
+:root {
+  --ebony: #140b10;
+  --ebony-soft: #22151b;
+  --ebony-line: #3a2630;
+  --oxblood: #5a1520;
+  --oxblood-deep: #2a0a10;
+  --crimson: #7a1420;
+  --crimson-bright: #b3202f;
+  --brass: #8a6a2f;
+  --brass-dark: #5e4315;
+  --parchment: #e9dcbd;
+  --parchment-light: #f6edd6;
+  --parchment-dark: #d8c79f;
+  --sepia: #2a1a12;
+  --verdigris: #2f5a35;
+
+  /* Re-point the base tokens so untouched rules pick up the new palette. */
+  --felt: var(--oxblood);
+  --felt-light: #3a1a24;
+  --felt-dark: var(--ebony);
+  --cream: var(--parchment);
+  --ink: var(--sepia);
+  --muted: #5b4636;
+  --gold: #d9b56a;
+  --gold-dark: var(--brass);
+  --danger: #5e0f18;
+  --danger-bg: #f1d5cd;
+  --good: #1f3d25;
+  --good-bg: #dde4c8;
+  --warn-bg: #f1dfa8;
+  --line: #b9a476;
+  --radius: 3px;
+
+  /* Noto Naskh Arabic sits in every chain, so an Arabic player name looks right on an English page too. */
+  --font-display: "Cinzel", "Trajan Pro", "Palatino Linotype", "Book Antiqua", Georgia, "Noto Naskh Arabic", serif;
+  --font-title: "UnifrakturCook", "Old English Text MT", "Cinzel", Georgia, serif;
+  --font-body: "EB Garamond", "Cormorant Garamond", "Palatino Linotype", "Book Antiqua", Georgia, "Noto Naskh Arabic", serif;
+
+  --quatrefoil: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='72' height='72'%3E%3Cg fill='none' stroke='%23d9b56a' stroke-opacity='.075' stroke-width='1.2'%3E%3Cpath d='M36 4c10 12 10 20 0 32c-10-12-10-20 0-32zM36 36c10 12 10 20 0 32c-10-12-10-20 0-32zM4 36c12-10 20-10 32 0c-12 10-20 10-32 0zM36 36c12-10 20-10 32 0c-12 10-20 10-32 0z'/%3E%3Ccircle cx='36' cy='36' r='3'/%3E%3Ccircle cx='0' cy='0' r='6'/%3E%3Ccircle cx='72' cy='0' r='6'/%3E%3Ccircle cx='0' cy='72' r='6'/%3E%3Ccircle cx='72' cy='72' r='6'/%3E%3C/g%3E%3C/svg%3E");
+  --corner-tl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cg fill='none' stroke='%23d9b56a' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M3 41V14C3 8 8 3 14 3h27'/%3E%3Cpath d='M9 30c0-12 9-21 21-21'/%3E%3Cpath d='M9 30c5 0 8-3 8-7s-4-6-7-3M30 9c0 5-3 8-7 8s-6-4-3-7'/%3E%3C/g%3E%3Ccircle cx='9' cy='9' r='2.2' fill='%23d9b56a'/%3E%3C/svg%3E");
+  --corner-tr: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cg transform='rotate(90 22 22)'%3E%3Cg fill='none' stroke='%23d9b56a' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M3 41V14C3 8 8 3 14 3h27'/%3E%3Cpath d='M9 30c0-12 9-21 21-21'/%3E%3Cpath d='M9 30c5 0 8-3 8-7s-4-6-7-3M30 9c0 5-3 8-7 8s-6-4-3-7'/%3E%3C/g%3E%3Ccircle cx='9' cy='9' r='2.2' fill='%23d9b56a'/%3E%3C/g%3E%3C/svg%3E");
+  --corner-br: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cg transform='rotate(180 22 22)'%3E%3Cg fill='none' stroke='%23d9b56a' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M3 41V14C3 8 8 3 14 3h27'/%3E%3Cpath d='M9 30c0-12 9-21 21-21'/%3E%3Cpath d='M9 30c5 0 8-3 8-7s-4-6-7-3M30 9c0 5-3 8-7 8s-6-4-3-7'/%3E%3C/g%3E%3Ccircle cx='9' cy='9' r='2.2' fill='%23d9b56a'/%3E%3C/g%3E%3C/svg%3E");
+  --corner-bl: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='44' height='44'%3E%3Cg transform='rotate(270 22 22)'%3E%3Cg fill='none' stroke='%23d9b56a' stroke-width='1.6' stroke-linecap='round'%3E%3Cpath d='M3 41V14C3 8 8 3 14 3h27'/%3E%3Cpath d='M9 30c0-12 9-21 21-21'/%3E%3Cpath d='M9 30c5 0 8-3 8-7s-4-6-7-3M30 9c0 5-3 8-7 8s-6-4-3-7'/%3E%3C/g%3E%3Ccircle cx='9' cy='9' r='2.2' fill='%23d9b56a'/%3E%3C/g%3E%3C/svg%3E");
+  --parchment-paper: radial-gradient(circle at 18% 8%, rgba(255, 250, 230, 0.55), transparent 42%), radial-gradient(circle at 85% 95%, rgba(110, 70, 25, 0.22), transparent 48%),
+    radial-gradient(circle at 95% 5%, rgba(110, 70, 25, 0.12), transparent 30%), linear-gradient(var(--parchment), var(--parchment-dark));
+
+  font-family: var(--font-body);
+  font-size: 17px;
+  color: var(--sepia);
+  background: var(--ebony);
+  scrollbar-color: var(--brass) var(--ebony);
+}
+
+::selection {
+  background: var(--crimson);
+  color: var(--parchment-light);
+}
+
+/* Dark wallpaper with a faint quatrefoil lattice, lit from above like a gas lamp. */
+body {
+  background:
+    radial-gradient(ellipse at 50% -10%, rgba(217, 181, 106, 0.16), transparent 55%),
+    radial-gradient(ellipse at 50% 120%, rgba(90, 21, 32, 0.45), transparent 60%),
+    var(--quatrefoil),
+    linear-gradient(#1b0f16, var(--ebony));
+  background-attachment: fixed;
+}
+
+h1,
+h2,
+h3,
+legend {
+  font-family: var(--font-display);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+}
+
+h2 {
+  padding-bottom: 0.35rem;
+  border-bottom: 3px double var(--brass);
+}
+
+h3 {
+  color: var(--crimson);
+  text-transform: uppercase;
+  font-size: 0.85rem;
+  letter-spacing: 0.12em;
+}
+
+h3::before {
+  content: "❦ ";
+  color: var(--brass);
+}
+
+:focus-visible {
+  outline: 3px solid #f0cf7a;
+  outline-offset: 2px;
+}
+
+.panel :focus-visible,
+.controls :focus-visible,
+.seat-chip :focus-visible {
+  outline-color: var(--crimson-bright);
+}
+
+/* ---------- Buttons and fields ---------- */
+
+.button {
+  border: 1px solid var(--brass);
+  border-radius: 2px;
+  background: linear-gradient(#2d1d25, #170d12);
+  color: #ecd298;
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.7), inset 0 1px 0 1px rgba(255, 225, 160, 0.1), 0 2px 5px rgba(0, 0, 0, 0.45);
+  transition: transform 0.12s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+}
+
+.button:hover:not(:disabled) {
+  background: linear-gradient(#3a2530, #1e1218);
+  border-color: var(--gold);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.7), 0 0 12px rgba(217, 181, 106, 0.35);
+}
+
+.button:disabled {
+  opacity: 0.42;
+}
+
+.button-primary {
+  background: linear-gradient(#e6c679, #b48a34 60%, #96702a);
+  border-color: var(--brass-dark);
+  color: #1d1108;
+  text-shadow: 0 1px 0 rgba(255, 240, 200, 0.5);
+  box-shadow: inset 0 0 0 1px rgba(255, 240, 200, 0.45), 0 2px 6px rgba(0, 0, 0, 0.5);
+}
+
+.button-primary:hover:not(:disabled) {
+  background: linear-gradient(#f2d891, #c49a40 60%, #a57c2f);
+  border-color: #3d2a0a;
+  box-shadow: inset 0 0 0 1px rgba(255, 240, 200, 0.6), 0 0 16px rgba(217, 181, 106, 0.55);
+}
+
+.button-quiet,
+.button-quiet:hover:not(:disabled) {
+  background: transparent;
+  border-color: transparent;
+  box-shadow: none;
+  color: var(--crimson);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.button-quiet:hover:not(:disabled) {
+  color: var(--crimson-bright);
+}
+
+.button-small {
+  font-size: 0.68rem;
+}
+
+.button-large {
+  font-size: 0.9rem;
+  letter-spacing: 0.14em;
+}
+
+.button[aria-pressed="true"] {
+  border-color: var(--gold);
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.7), inset 0 0 10px rgba(217, 181, 106, 0.35);
+}
+
+.topbar .button[aria-pressed="true"]::after {
+  content: " ✓";
+}
+
+.field {
+  font-family: var(--font-display);
+  font-size: 0.74rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.field input[type="text"],
+.field input[type="number"],
+.field select {
+  border: 1px solid var(--brass);
+  border-radius: 2px;
+  background: var(--parchment-light);
+  color: var(--sepia);
+  font-family: var(--font-body);
+  font-size: 1.05rem;
+  letter-spacing: normal;
+  text-transform: none;
+  box-shadow: inset 0 2px 5px rgba(80, 50, 20, 0.2);
+}
+
+.field input::placeholder {
+  color: #9a8466;
+  font-style: italic;
+}
+
+.field-check {
+  color: var(--sepia);
+}
+
+.field-check input {
+  accent-color: var(--crimson);
+}
+
+.settings {
+  border: 3px double var(--brass);
+  border-radius: 2px;
+  background: rgba(255, 250, 235, 0.35);
+}
+
+.settings legend {
+  color: var(--crimson);
+  font-size: 0.8rem;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.note {
+  font-style: italic;
+  font-size: 0.95rem;
+}
+
+.error {
+  border: 1px solid var(--crimson);
+  border-inline-start-width: 6px;
+  border-radius: 2px;
+}
+
+.tag {
+  border: 1px solid var(--brass);
+  border-radius: 2px;
+  background: var(--parchment-light);
+  color: var(--sepia);
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  vertical-align: middle;
+}
+
+.tag-you {
+  background: linear-gradient(#e6c679, #b48a34);
+  border-color: var(--brass-dark);
+  color: #1d1108;
+}
+
+.tag-good {
+  background: var(--good-bg);
+  border-color: var(--verdigris);
+  color: var(--good);
+}
+
+.tag-warn {
+  background: #f0d9a0;
+  border-color: var(--crimson);
+  color: var(--danger);
+}
+
+.chips li {
+  border: 1px solid var(--brass);
+  border-radius: 2px;
+  background: var(--parchment-light);
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+/* ---------- Panels, home, lobby ---------- */
+
+.panel {
+  border: 1px solid var(--brass-dark);
+  border-radius: 3px;
+  background: var(--parchment-paper);
+  outline: 1px solid var(--brass);
+  outline-offset: -8px;
+  padding: 1.6rem 1.5rem;
+  box-shadow: 0 0 0 4px var(--ebony), 0 0 0 5px var(--brass), 0 18px 50px rgba(0, 0, 0, 0.7), inset 0 0 40px rgba(110, 70, 25, 0.25);
+}
+
+.home-hero h1 {
+  font-family: var(--font-title);
+  font-weight: 700;
+  font-size: clamp(3.4rem, 13vw, 5.6rem);
+  letter-spacing: 0.02em;
+  color: var(--gold);
+  text-shadow: 0 0 22px rgba(217, 181, 106, 0.45), 0 3px 0 #3d2a0a, 0 5px 12px rgba(0, 0, 0, 0.8);
+  margin-bottom: 0.2rem;
+}
+
+.home-hero p {
+  color: var(--parchment);
+  font-style: italic;
+  font-size: 1.1rem;
+}
+
+.home-hero p::before,
+.home-hero p::after {
+  content: "❦";
+  color: var(--brass);
+  font-style: normal;
+  margin: 0 0.7rem;
+}
+
+.home > .note {
+  color: var(--parchment);
+}
+
+.invite {
+  border: 1px dashed var(--brass);
+  border-radius: 2px;
+  background: var(--parchment-light);
+  box-shadow: inset 0 0 18px rgba(110, 70, 25, 0.18);
+}
+
+.invite-label {
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.invite-code {
+  font-family: var(--font-display);
+  color: var(--crimson);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+.seat-row {
+  border: 1px solid var(--brass);
+  border-radius: 2px;
+  background: var(--parchment-light);
+}
+
+.seat-row.seat-empty {
+  border-style: dashed;
+  background: transparent;
+}
+
+.seat-number {
+  border-radius: 50%;
+  border: 1px solid var(--brass);
+  background: var(--ebony-soft);
+  color: var(--gold);
+  font-family: var(--font-display);
+}
+
+/* ---------- Overlays ---------- */
+
+.overlay {
+  background: rgba(8, 3, 6, 0.82);
+  backdrop-filter: blur(2px);
+}
+
+.rules li::marker {
+  color: var(--brass);
+}
+
+.choice-cards {
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  letter-spacing: normal;
+  text-transform: none;
+  color: #cbb588;
+}
+
+/* ---------- Cards ---------- */
+
+.card img {
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.55)) sepia(0.12);
+}
+
+.card-selected,
+button.card-selected:hover:not(:disabled) {
+  filter: drop-shadow(0 0 7px rgba(240, 207, 122, 0.95));
+}
+
+.card-check {
+  border: 1px solid var(--gold);
+  background: var(--crimson);
+  color: #f6e3ad;
+}
+
+.card-badge {
+  border: 1px solid var(--brass-dark);
+  border-radius: 2px;
+  background: linear-gradient(#e6c679, #b48a34);
+  color: #1d1108;
+  font-family: var(--font-display);
+  font-size: 0.52rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.card-represents {
+  border: 1px solid var(--brass);
+  border-radius: 2px;
+  background: var(--ebony);
+  color: var(--gold);
+  font-family: var(--font-body);
+  font-size: 0.78rem;
+}
+
+.card-empty {
+  border: 1px dashed rgba(217, 181, 106, 0.55);
+  border-radius: 4px;
+  color: rgba(233, 220, 189, 0.75);
+  font-family: var(--font-display);
+  font-size: 0.6rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* A joker that can be swapped shows its Swap plate at the bottom, so its rank label moves to the top. */
+.card-badged .card-represents {
+  bottom: auto;
+  top: 8%;
+}
+
+.meld .card-badged {
+  filter: drop-shadow(0 0 6px rgba(240, 207, 122, 0.95));
+}
+
+.choice-cards-dark {
+  color: #3d2a0a;
+}
+
+/* ---------- Game layout ---------- */
+
+.topbar {
+  background: linear-gradient(#24141b, #130a0f);
+  border-bottom: 1px solid var(--brass);
+  box-shadow: 0 1px 0 #000, 0 2px 0 rgba(217, 181, 106, 0.25), 0 6px 18px rgba(0, 0, 0, 0.6);
+  color: var(--parchment);
+}
+
+.topbar-title strong {
+  font-family: var(--font-display);
+  color: var(--gold);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.room-code {
+  font-family: var(--font-display);
+  color: #cbb588;
+}
+
+.topbar-chips li {
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(217, 181, 106, 0.4);
+  color: #e2cf9f;
+}
+
+.banner {
+  background: var(--crimson);
+  color: var(--parchment-light);
+  font-family: var(--font-display);
+  font-size: 0.8rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border-bottom: 1px solid var(--brass);
+}
+
+.seat-chip {
+  border: 1px solid var(--brass-dark);
+  border-radius: 3px;
+  background: var(--parchment-paper);
+  box-shadow: inset 0 0 0 3px var(--parchment), inset 0 0 0 4px rgba(138, 106, 47, 0.55), 0 3px 10px rgba(0, 0, 0, 0.5);
+}
+
+.seat-chip-name strong {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.05em;
+}
+
+/* The player whose turn it is sits in candlelight. */
+.seat-active {
+  border-color: var(--gold);
+  background: var(--parchment-paper);
+  box-shadow: inset 0 0 0 3px var(--parchment-light), inset 0 0 0 4px var(--crimson), 0 0 0 2px var(--gold), 0 0 26px rgba(240, 190, 90, 0.65);
+  animation: candle 3.2s ease-in-out infinite;
+}
+
+@keyframes candle {
+  0%,
+  100% {
+    box-shadow: inset 0 0 0 3px var(--parchment-light), inset 0 0 0 4px var(--crimson), 0 0 0 2px var(--gold), 0 0 26px rgba(240, 190, 90, 0.65);
+  }
+  45% {
+    box-shadow: inset 0 0 0 3px var(--parchment-light), inset 0 0 0 4px var(--crimson), 0 0 0 2px var(--gold), 0 0 14px rgba(240, 190, 90, 0.4);
+  }
+  60% {
+    box-shadow: inset 0 0 0 3px var(--parchment-light), inset 0 0 0 4px var(--crimson), 0 0 0 2px var(--gold), 0 0 30px rgba(240, 190, 90, 0.75);
+  }
+}
+
+.turn-marker {
+  color: var(--crimson);
+}
+
+/* The table: oxblood velvet in a brass frame with filigree corners. */
+.felt {
+  position: relative;
+  border: 1px solid var(--brass);
+  border-radius: 4px;
+  padding: 1.4rem 1.3rem;
+  background:
+    radial-gradient(ellipse at 50% 20%, rgba(255, 200, 150, 0.1), transparent 60%),
+    var(--quatrefoil),
+    radial-gradient(ellipse at 50% 35%, #64182480, transparent 75%),
+    linear-gradient(#4a1019, var(--oxblood-deep));
+  box-shadow: inset 0 0 0 4px #12070a, inset 0 0 0 5px rgba(217, 181, 106, 0.55), inset 0 0 70px rgba(0, 0, 0, 0.75), 0 8px 26px rgba(0, 0, 0, 0.6);
+}
+
+.felt::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  pointer-events: none;
+  background:
+    var(--corner-tl) top left no-repeat,
+    var(--corner-tr) top right no-repeat,
+    var(--corner-br) bottom right no-repeat,
+    var(--corner-bl) bottom left no-repeat;
+  opacity: 0.85;
+}
+
+.pile {
+  color: #e2cf9f;
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.pile-hint {
+  border: 1px solid var(--brass-dark);
+  border-radius: 2px;
+  background: linear-gradient(#e6c679, #b48a34);
+  color: #1d1108;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 0 rgba(240, 207, 122, 0));
+  }
+  50% {
+    filter: drop-shadow(0 0 9px rgba(240, 207, 122, 0.95));
+  }
+}
+
+.melds > .note {
+  color: rgba(233, 220, 189, 0.7);
+}
+
+.meld {
+  border: 1px solid rgba(217, 181, 106, 0.38);
+  border-radius: 3px;
+  background: rgba(10, 3, 5, 0.38);
+  box-shadow: inset 0 0 14px rgba(0, 0, 0, 0.5);
+}
+
+.meld-pending {
+  border-style: dashed;
+  border-color: var(--gold);
+}
+
+.meld-target {
+  border-color: var(--gold);
+  background: rgba(217, 181, 106, 0.16);
+  box-shadow: 0 0 14px rgba(217, 181, 106, 0.35);
+}
+
+.meld-label {
+  color: #d8c38f;
+  font-style: italic;
+}
+
+.meld-label span:first-child {
+  font-family: var(--font-display);
+  font-style: normal;
+  color: var(--gold);
+  letter-spacing: 0.12em;
+}
+
+.controls {
+  border: 1px solid var(--brass-dark);
+  border-radius: 4px;
+  background: var(--parchment-paper);
+  box-shadow: inset 0 0 0 4px var(--parchment), inset 0 0 0 5px rgba(138, 106, 47, 0.6), inset 0 0 50px rgba(110, 70, 25, 0.22), 0 8px 26px rgba(0, 0, 0, 0.6);
+  padding: 1rem 1.1rem 1.1rem;
+}
+
+.status {
+  font-size: 1.08rem;
+}
+
+.status-mine {
+  border-inline-start: 6px solid var(--crimson);
+  border-radius: 2px;
+  background: linear-gradient(90deg, #f1dfa8, rgba(241, 223, 168, 0.35));
+}
+
+.opening {
+  font-family: var(--font-display);
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+}
+
+.hand-group {
+  border-bottom: 3px double var(--brass);
+  border-radius: 0;
+}
+
+.hand-slot.drop-before::before,
+.hand-slot.drop-after::after {
+  background: var(--crimson-bright);
+  box-shadow: 0 0 0 2px var(--gold), 0 0 10px rgba(179, 32, 47, 0.8);
+}
+
+.hand-newgroup {
+  border: 2px dashed var(--brass);
+  border-radius: 3px;
+  font-family: var(--font-display);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hand-newgroup-active {
+  background: #f1dfa8;
+  border-color: var(--crimson);
+  border-style: solid;
+}
+
+.arrange {
+  border-top: 3px double var(--brass);
+}
+
+.arrange-label {
+  font-family: var(--font-display);
+  font-size: 0.66rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.log {
+  border: 1px solid rgba(217, 181, 106, 0.4);
+  border-radius: 3px;
+  background: rgba(10, 4, 7, 0.72);
+  color: #e2cf9f;
+  font-style: italic;
+}
+
+.log summary {
+  font-family: var(--font-display);
+  font-style: normal;
+  font-size: 0.74rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+
+.log li::marker {
+  color: var(--brass);
+}
+
+/* ---------- Results ---------- */
+
+.headline {
+  font-family: var(--font-display);
+  color: var(--crimson);
+  text-align: center;
+}
+
+.results th {
+  font-family: var(--font-display);
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.results thead th {
+  border-bottom: 3px double var(--brass);
+  color: var(--crimson);
+}
+
+.results th,
+.results td {
+  border-bottom-color: rgba(138, 106, 47, 0.45);
+}
+
+.row-winner {
+  background: rgba(47, 90, 53, 0.16);
+  box-shadow: inset 4px 0 0 var(--verdigris);
+}
+
+.floating {
+  box-shadow: 0 0 0 3px var(--ebony), 0 0 0 4px var(--brass), 0 8px 24px rgba(0, 0, 0, 0.7);
+}
+
+@media (max-width: 560px) {
+  :root {
+    font-size: 16px;
+  }
+
+  .panel {
+    padding: 1.3rem 1.05rem;
+  }
+
+  .felt {
+    padding: 1.1rem 0.8rem;
+  }
+
+  .felt::before {
+    inset: 5px;
+    background-size: 30px 30px;
+  }
+
+  .seat-chip-name strong {
+    font-size: 0.72rem;
+  }
+}
+
+/* ---------- Arabic and right-to-left ---------- */
+
+:root[lang="ar"] {
+  /* One Arabic family for everything. Weight, not a second typeface, separates headings from body text. */
+  --font-display: "Noto Naskh Arabic", "Traditional Arabic", "Segoe UI", serif;
+  --font-title: "Noto Naskh Arabic", "Traditional Arabic", "Segoe UI", serif;
+  --font-body: "Noto Naskh Arabic", "Traditional Arabic", "Segoe UI", serif;
+  font-size: 17px;
+  line-height: 1.75;
+}
+
+/* Letter spacing breaks the joins between Arabic letters, and Arabic has no capitals. */
+:root[lang="ar"] :is(h1, h2, h3, legend, .button, .tag, .field, .chips li, .pile, .pile-hint, .meld-label span, .arrange-label, .log summary, .results th, .banner, .opening, .card-badge, .hand-newgroup, .invite-label, .card-empty, .topbar-title strong) {
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+:root[lang="ar"] .button {
+  font-size: 0.9rem;
+}
+
+:root[lang="ar"] .button-small {
+  font-size: 0.8rem;
+}
+
+:root[lang="ar"] .button-large {
+  font-size: 1.05rem;
+}
+
+:root[lang="ar"] :is(.tag, .chips li, .card-badge, .pile, .hand-newgroup, .arrange-label, .invite-label) {
+  font-size: 0.78rem;
+}
+
+:root[lang="ar"] .card-badge {
+  font-size: 0.66rem;
+}
+
+:root[lang="ar"] .field {
+  font-size: 0.9rem;
+}
+
+:root[lang="ar"] h3 {
+  font-size: 1.05rem;
+}
+
+:root[lang="ar"] .note,
+:root[lang="ar"] .log,
+:root[lang="ar"] .meld-label,
+:root[lang="ar"] .home-hero p {
+  font-style: normal;
+}
+
+:root[lang="ar"] .home-hero h1 {
+  font-size: clamp(3.2rem, 13vw, 5.2rem);
+  font-weight: 700;
+  line-height: 1.4;
+}
+
+/* A language switch always reads in its own language, whatever the page direction. */
+.language-switch:lang(ar) {
+  font-family: "Noto Naskh Arabic", "Traditional Arabic", serif;
+  font-size: 0.9rem;
+  letter-spacing: 0;
+}
+
+.language-switch:lang(en) {
+  font-family: "Cinzel", Georgia, serif;
+  font-size: 0.7rem;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.language-corner {
+  position: fixed;
+  top: 0.75rem;
+  inset-inline-end: 0.75rem;
+  z-index: 10;
+}
+
+/*
+ * Playing cards are printed left to right: the index sits in the top left corner.
+ * Fans of overlapping cards therefore keep their direction even on an Arabic page,
+ * otherwise each card would cover the index of the one before it.
+ */
+.hand,
+.hand-group,
+.meld-cards,
+.result-hand,
+.piles {
+  direction: ltr;
+}
+
+/* Card codes, room codes, and score sums stay left to right inside Arabic text. */
+.card-represents,
+.choice-cards,
+.meld-add,
+.breakdown,
+.invite-code,
+.room-code,
+.seq,
+.join input {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+:root[dir="rtl"] .breakdown {
+  text-align: end;
+}
+
+/* Let the code field shrink, so a wider Arabic button still fits inside the panel. */
+.join .field {
+  min-width: 0;
+}
+
+.join input {
+  width: 100%;
+  min-width: 0;
+}
+
+.join .button {
+  flex: none;
+}
+
+/* Arabic has no capitals to carry a small label, so labels get more size than their Latin counterparts. */
+:root[lang="ar"] :is(.field, .invite-label, .settings legend, .arrange-label, .log summary, .results th) {
+  font-size: 0.92rem;
+}
+
+:root[lang="ar"] :is(.tag, .chips li, .pile, .hand-newgroup, .meld-label) {
+  font-size: 0.78rem;
+}
+
+/* ---------- Score line and meld calculator ---------- */
+
+.planner {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  list-style: none;
+  margin: 0 0 0.5rem;
+  padding: 0;
+}
+
+.planner li {
+  padding: 0.12rem 0.6rem;
+  border: 1px solid var(--brass);
+  border-radius: 2px;
+  background: var(--parchment-light);
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* Colour is never the only signal: ready lines carry a tick and failed ones a cross. */
+.planner .planner-good {
+  border-color: var(--verdigris);
+  background: var(--good-bg);
+  color: var(--good);
+}
+
+.planner .planner-warn {
+  border-color: var(--brass-dark);
+  background: var(--warn-bg);
+}
+
+.planner .planner-bad {
+  border-color: var(--crimson);
+  background: var(--danger-bg);
+  color: var(--danger);
+}
+
+/* The verdict under each arranged group. */
+.hand-group {
+  position: relative;
+}
+
+.hand-group-valued {
+  padding-bottom: 1.5rem;
+}
+
+.hand-group-value {
+  position: absolute;
+  inset-inline-start: 0.2rem;
+  bottom: 0.2rem;
+  display: flex;
+  gap: 0.4rem;
+  white-space: nowrap;
+  font-family: var(--font-display);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  line-height: 1.2;
+  direction: ltr;
+  pointer-events: none;
+}
+
+:root[lang="ar"] .hand-group-value {
+  letter-spacing: 0;
+  font-size: 0.78rem;
+}
+
+.value-ready {
+  color: var(--good);
+}
+
+.value-discard {
+  color: var(--crimson);
+}
+
+.hand-group-ready {
+  border-bottom-color: var(--verdigris);
+}

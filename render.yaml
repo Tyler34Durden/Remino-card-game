@@ -1,0 +1,13 @@
+# Render blueprint: one web service that serves the built client and the Socket.IO game server.
+# Keep it at a single instance, because rooms live in the memory of that one process.
+services:
+  - type: web
+    name: romino
+    runtime: node
+    plan: free
+    buildCommand: npm ci --include=dev && npm run build
+    startCommand: npm start
+    healthCheckPath: /healthz
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
