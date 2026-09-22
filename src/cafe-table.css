@@ -13,9 +13,9 @@
   pointer-events: none;
   background-image:
     linear-gradient(180deg, rgba(15, 55, 57, 0.25), rgba(15, 55, 57, 0.02) 32%, rgba(15, 55, 57, 0.11) 100%),
-    url("/backgrounds/plastic-cafe-table-topdown-v1.jpg");
+    url("/backgrounds/plastic-cafe-table.jpg");
   background-size: cover;
-  background-position: center;
+  background-position: center 62%;
   background-repeat: no-repeat;
 }
 
@@ -216,7 +216,7 @@
 :root[data-theme="dark"] .game::before {
   background-image:
     linear-gradient(rgba(4, 28, 32, 0.5), rgba(4, 28, 32, 0.38)),
-    url("/backgrounds/plastic-cafe-table-topdown-v1.jpg");
+    url("/backgrounds/plastic-cafe-table.jpg");
 }
 
 :root[data-theme="dark"] .game .seat-chip,
@@ -266,10 +266,11 @@
 }
 
 @media (max-width: 640px) {
+  /* Framed so the tabletop's far edge falls above the piles and the cards rest on wood, not on the street. */
   .game::before,
   :root[data-theme="dark"] .game::before {
-    background-size: cover;
-    background-position: center;
+    background-size: auto 135%;
+    background-position: center 82%;
   }
 
   .game .topbar {
@@ -390,4 +391,48 @@
   .game .seat-chip-info {
     font-size: 0.59rem;
   }
+}
+
+/* ---------- Cards lying on the tabletop ---------- */
+
+/*
+ * The background photograph is taken at an angle, so flat cards would look like stickers on glass.
+ * Tilting the card surfaces into the same plane, and grounding them with a contact shadow,
+ * puts them on the table. Labels and buttons stay upright so they never become hard to read.
+ * Change --table-tilt alone to make the effect stronger or weaker.
+ */
+.game .felt {
+  --table-tilt: 15deg;
+  perspective: 1200px;
+  perspective-origin: 50% 0%;
+}
+
+.game .meld-cards,
+.game .pile > .pile-button,
+.game .pile > .card {
+  transform: rotateX(var(--table-tilt));
+  transform-origin: 50% 100%;
+}
+
+/* Keep the lift on hover without losing the tilt. */
+.game .pile > button.card:hover:not(:disabled) {
+  transform: rotateX(var(--table-tilt)) translateY(-4px);
+}
+
+/* A card resting on a surface casts a short shadow just under itself. */
+.game .meld-cards .card img,
+.game .pile .card img {
+  filter: drop-shadow(0 5px 5px rgba(8, 42, 44, 0.45));
+}
+
+:root[data-theme="dark"] .game .meld-cards .card img,
+:root[data-theme="dark"] .game .pile .card img {
+  filter: drop-shadow(0 5px 6px rgba(0, 0, 0, 0.6));
+}
+
+/* The melds sit on the wood, so their panels lose the card-like frame. */
+.game .meld {
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
 }
