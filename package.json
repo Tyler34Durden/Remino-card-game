@@ -4,11 +4,11 @@
   "version": "0.1.0",
   "type": "module",
   "scripts": {
-    "dev": "concurrently -n web,server -c cyan,magenta \"vite\" \"tsx watch server/index.ts --port 3001\"",
+    "dev": "vite",
     "build": "tsc -b && vite build",
-    "start": "tsx server/index.ts",
     "test": "vitest run",
-    "typecheck": "tsc -b"
+    "typecheck": "tsc -b",
+    "preview": "vite preview"
   },
   "dependencies": {
     "express": "^5.2.1",

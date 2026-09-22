@@ -5,6 +5,7 @@ import type { MessageKey } from "./i18n.ts";
 export const ar: Record<MessageKey, string> = {
   "app.title": "رومينو",
   "app.tagline": "لعبة الورق الليبية، مع الأصدقاء عبر الإنترنت.",
+  "app.taglineSolo": "لعبة الورق الليبية. العب ضد زبائن المقهى.",
   "app.connecting": "جارٍ الاتصال بالخادم…",
   "app.offline": "انقطع الاتصال. جارٍ إعادة الاتصال…",
   "app.language": "English",
@@ -12,6 +13,7 @@ export const ar: Record<MessageKey, string> = {
 
   "home.name": "اسم اللاعب",
   "home.namePlaceholder": "اسمك",
+  "home.playSolo": "العب ضد أهل المقهى",
   "home.create": "إنشاء غرفة خاصة",
   "home.join": "الانضمام إلى غرفة",
   "home.code": "رمز الغرفة",

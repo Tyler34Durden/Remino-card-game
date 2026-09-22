@@ -5,6 +5,7 @@ import { ar } from "./i18n.ar.ts";
 const en = {
   "app.title": "Romino",
   "app.tagline": "The Libyan card game, online with friends.",
+  "app.taglineSolo": "The Libyan card game. Play the café regulars.",
   "app.connecting": "Connecting to the server…",
   "app.offline": "Connection lost. Reconnecting…",
   // The switch shows the name of the language it changes to.
@@ -13,6 +14,7 @@ const en = {
 
   "home.name": "Display name",
   "home.namePlaceholder": "Your name",
+  "home.playSolo": "Play against the café",
   "home.create": "Create a private room",
   "home.join": "Join a room",
   "home.code": "Room code",

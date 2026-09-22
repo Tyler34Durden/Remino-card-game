@@ -9,10 +9,6 @@ import { SettingsForm } from "./SettingsForm.tsx";
 
 const NAME_KEY = "romino-name";
 
-function initialCode(): string {
-  return (new URLSearchParams(window.location.search).get("room") ?? "").toUpperCase().slice(0, 6);
-}
-
 function savedName(): string {
   try {
     return localStorage.getItem(NAME_KEY) ?? "";
@@ -23,7 +19,6 @@ function savedName(): string {
 
 export function Home({ game, onRules }: { game: Game; onRules: () => void }) {
   const [name, setName] = useState(savedName);
-  const [code, setCode] = useState(initialCode);
   const [creating, setCreating] = useState(false);
   const [settings, setSettings] = useState<RoomSettings>(DEFAULT_SETTINGS);
   const [localError, setLocalError] = useState<string | null>(null);
@@ -51,12 +46,6 @@ export function Home({ game, onRules }: { game: Game; onRules: () => void }) {
     if (entered) window.history.replaceState(null, "", window.location.pathname);
   };
 
-  const join = (e: FormEvent) => {
-    e.preventDefault();
-    const player = checkName();
-    if (player) void run(() => game.joinRoom(player, code));
-  };
-
   const create = (e: FormEvent) => {
     e.preventDefault();
     const player = checkName();
@@ -69,7 +58,7 @@ export function Home({ game, onRules }: { game: Game; onRules: () => void }) {
     <main className="home">
       <header className="home-hero">
         <h1>{t("app.title")}</h1>
-        <p>{t("app.tagline")}</p>
+        <p>{t("app.taglineSolo")}</p>
       </header>
 
       <section className="panel">
@@ -99,39 +88,20 @@ export function Home({ game, onRules }: { game: Game; onRules: () => void }) {
                 {t("home.back")}
               </button>
               <button type="submit" className="button button-primary" disabled={busy || !game.connected}>
-                {t("home.createButton")}
+                {t("home.playSolo")}
               </button>
             </div>
           </form>
         ) : (
           <div className="stack">
             <button type="button" className="button button-primary button-large" onClick={() => setCreating(true)}>
-              {t("home.create")}
+              {t("home.playSolo")}
             </button>
-            <form onSubmit={join} className="join">
-              <label className="field">
-                <span>{t("home.code")}</span>
-                <input
-                  type="text"
-                  value={code}
-                  maxLength={6}
-                  autoCapitalize="characters"
-                  autoComplete="off"
-                  spellCheck={false}
-                  placeholder={t("home.codePlaceholder")}
-                  onChange={(e) => setCode(e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, ""))}
-                />
-              </label>
-              <button type="submit" className="button" disabled={busy || !game.connected || code.length !== 6}>
-                {t("home.joinButton")}
-              </button>
-            </form>
             <button type="button" className="button button-quiet" onClick={onRules}>
               {t("home.rules")}
             </button>
           </div>
         )}
-        {!game.connected && <p className="note">{t("app.connecting")}</p>}
       </section>
     </main>
   );

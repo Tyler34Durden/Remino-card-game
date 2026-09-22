@@ -29,6 +29,8 @@
   "include": [
     "src",
     "shared",
-    "engine"
+    "engine",
+    "server/rooms.ts",
+    "server/random.ts"
   ]
 }

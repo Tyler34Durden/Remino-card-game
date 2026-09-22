@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { directionOf, initialLanguage, setLanguage, t } from "./i18n.ts";
 import type { Language } from "./i18n.ts";
 import { serverText } from "./serverText.ts";
-import { useGame } from "./net.ts";
+import { useSoloGame } from "./soloGame.ts";
 import { usePrefs } from "./prefs.ts";
 import { Home } from "./components/Home.tsx";
 import { Lobby } from "./components/Lobby.tsx";
@@ -13,7 +13,7 @@ import { Table } from "./components/Table.tsx";
 import { ShuffleRitual } from "./components/ShuffleRitual.tsx";
 
 export function App() {
-  const game = useGame();
+  const game = useSoloGame();
   const { prefs, dark, toggle, toggleTheme } = usePrefs();
   const [language, setLanguageState] = useState<Language>(initialLanguage);
   // Every t() call reads the module-level language, so it must be set before the children render.
@@ -112,7 +112,6 @@ export function App() {
       <header className="topbar">
         <div className="topbar-title">
           <strong>{room.tiebreak ? t("table.tiebreak", { number: room.roundNumber }) : t("table.round", { number: room.roundNumber })}</strong>
-          <span className="room-code">{room.code}</span>
         </div>
         <ul className="chips topbar-chips">
           {settingsSummary(room.settings).map((line) => (

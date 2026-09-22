@@ -1,4 +1,4 @@
-import { randomBytes, randomInt } from "node:crypto";
+import { randomBytes, randomInt } from "./random.ts";
 import type { GameAction, PublicRoomState, PublicSeat, RoomSettings, SessionInfo } from "../shared/types.ts";
 import { botViewOf, chooseBotAction, fallbackBotAction } from "../engine/bot.ts";
 import { applyAction, applyLateJoin, createMatch, endMatchEarly, startNextRound, uniqueLowestSeat, validateSettings } from "../engine/game.ts";
