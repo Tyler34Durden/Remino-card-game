@@ -145,6 +145,8 @@ export interface PublicRoomState {
   roundNumber: number;
   tiebreak: boolean;
   dealerSeat: number | null;
+  /** Cosmetic pre-deal ritual; the server has already fixed the deck order. */
+  shuffleRitual: { phase: "shuffling" | "dealing"; swipes: number; dealerSeat: number } | null;
   activeSeat: number | null;
   turnPhase: TurnPhase;
   cardSource: CardSource | null;
@@ -184,6 +186,7 @@ export interface ClientToServerEvents {
   start_match: (ack: Ack) => void;
   game_action: (payload: GameActionPayload, ack: Ack) => void;
   start_next_round: (ack: Ack) => void;
+  shuffle_swipe: (ack: Ack) => void;
   end_match_early: (ack: Ack) => void;
   reclaim_bot_seat: (ack: Ack) => void;
   leave_room: (ack: Ack) => void;

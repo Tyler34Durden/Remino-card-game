@@ -279,15 +279,6 @@
     padding: 0.35rem 0.5rem;
   }
 
-  /* Long tips are one tap away instead of always on screen. */
-  .controls .hint {
-    display: none;
-  }
-
-  .controls.tips-open .hint {
-    display: block;
-  }
-
   .tips-toggle {
     display: inline-flex;
     align-items: center;

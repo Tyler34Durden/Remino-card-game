@@ -155,6 +155,7 @@ export function createGameServer(options: Partial<RoomOptions> = {}, quiet = fal
 
     socket.on("start_match", (ack) => inRoom(socket, ack, (code, id) => manager.startMatch(code, id)));
     socket.on("start_next_round", (ack) => inRoom(socket, ack, (code, id) => manager.startNextRound(code, id)));
+    socket.on("shuffle_swipe", (ack) => inRoom(socket, ack, (code, id) => manager.shuffleSwipe(code, id)));
     socket.on("end_match_early", (ack) => inRoom(socket, ack, (code, id) => manager.endMatchEarly(code, id)));
     socket.on("reclaim_bot_seat", (ack) => inRoom(socket, ack, (code, id) => manager.reclaimSeat(code, id)));
 

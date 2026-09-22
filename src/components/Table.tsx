@@ -47,27 +47,33 @@ interface JokerChoice {
 function SeatChip({ seat, room, handValue }: { seat: PublicSeat; room: PublicRoomState; handValue?: number }) {
   const active = room.activeSeat === seat.seat;
   const isMe = seat.seat === room.viewer.seat;
+  const name = localName(seat.name);
   return (
-    <li className={`seat-chip${active ? " seat-active" : ""}${isMe ? " seat-me" : ""}`} aria-current={active ? "true" : undefined}>
-      <div className="seat-chip-name">
-        {active && <span className="turn-marker" aria-hidden="true">▶</span>}
-        <strong>{localName(seat.name)}</strong>
-        {isMe && <span className="tag tag-you">{t("lobby.you")}</span>}
-        {seat.kind === "bot" && <span className="tag">{t("lobby.bot")}</span>}
-        {room.dealerSeat === seat.seat && <span className="tag">{t("table.dealer")}</span>}
-      </div>
-      <div className="seat-chip-info">
-        <span className="mini-cards" aria-hidden="true">
-          <CardBack small color={seat.kind === "bot" ? "red" : "blue"} />
+    <li className={`seat-chip${active ? " seat-active" : ""}${isMe ? " seat-me" : ""}${seat.kind === "bot" ? " seat-bot" : ""}`} aria-current={active ? "true" : undefined}>
+      <div className="seat-chip-head">
+        <span className={`seat-avatar seat-avatar-${seat.seat % 6}`} aria-hidden="true" />
+        <span className="seat-card-badge" aria-label={t("table.cards", { count: seat.cardCount })}>
+          <span aria-hidden="true"><CardBack small color={seat.kind === "bot" ? "red" : "blue"} /></span>
+          <strong>{seat.cardCount}</strong>
         </span>
-        <span>{t("table.cards", { count: seat.cardCount })}</span>
-        <span>{t("table.score", { score: seat.score })}</span>
-        {handValue !== undefined && (
-          <span className="seat-hand-value">
-            <span className="label-long">{t("planner.handValue", { points: handValue })}</span>
-            <span className="label-short">{t("planner.handShort", { points: handValue })}</span>
-          </span>
-        )}
+      </div>
+      <div className="seat-chip-copy">
+        <div className="seat-chip-name">
+          {active && <span className="turn-marker" aria-hidden="true">▶</span>}
+          <strong>{name}</strong>
+          {isMe && <span className="tag tag-you">{t("lobby.you")}</span>}
+          {seat.kind === "bot" && <span className="tag">{t("lobby.bot")}</span>}
+          {room.dealerSeat === seat.seat && <span className="tag">{t("table.dealer")}</span>}
+        </div>
+        <div className="seat-chip-info">
+          <span className="seat-score">{t("table.score", { score: seat.score })}</span>
+          {handValue !== undefined && (
+            <span className="seat-hand-value">
+              <span className="label-long">{t("planner.handValue", { points: handValue })}</span>
+              <span className="label-short">{t("planner.handShort", { points: handValue })}</span>
+            </span>
+          )}
+        </div>
       </div>
       <div className="seat-chip-tags">
         <span className={`tag ${seat.opened ? "tag-good" : ""}`}>{seat.opened ? `✓ ${t("table.opened")}` : t("table.notOpened")}</span>
@@ -112,11 +118,12 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
     setSavedLayout([]);
   }, [room.status, room.code, room.roundNumber]);
   const [localError, setLocalError] = useState<string | null>(null);
+  const [visibleWarning, setVisibleWarning] = useState<string | null>(null);
   const [jokerChoice, setJokerChoice] = useState<JokerChoice | null>(null);
   // Adding a card to a set that holds a joker can mean two things, so the player is asked which one.
   const [swapChoice, setSwapChoice] = useState<{ meld: TableMeld; jokerId: string; cardId: string; label: string } | null>(null);
   const [busy, setBusy] = useState(false);
-  // Phones hide the long hints behind a help button. Desktop always shows them.
+  // Keep the table uncluttered on every screen; the help button reveals the longer hints.
   const [tipsOpen, setTipsOpen] = useState(false);
   const seatsRef = useRef<HTMLUListElement>(null);
 
@@ -361,9 +368,42 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
   const signature = (m: TableMeld) => m.cards.map((c) => c.card.id).join(",");
   const pendingMeldIds = new Set(visibleMelds.filter((m) => !room.melds.some((r) => r.id === m.id && signature(r) === signature(m))).map((m) => m.id));
   const error = localError ?? game.error;
+  const logEntries = room.log.filter((line) => line.trim().length > 0).slice(-12);
+  const warningMessage = error
+    ? serverText(error)
+    : discardBlocked
+      ? t("turn.discardBlocked", { card: ltr(cardLabel(selectedCards[0])) })
+      : null;
+  useEffect(() => setVisibleWarning(warningMessage), [warningMessage]);
+  useEffect(() => {
+    if (!visibleWarning) return;
+    const timer = window.setTimeout(() => {
+      setVisibleWarning(null);
+      setLocalError(null);
+      game.clearError();
+    }, 5500);
+    return () => window.clearTimeout(timer);
+  }, [visibleWarning, game.clearError]);
+  const dismissWarning = () => {
+    setVisibleWarning(null);
+    setLocalError(null);
+    game.clearError();
+  };
   const showOpening = taking && !opened;
+  const openingProgress = showOpening && preview?.ok ? preview.openingPoints : plan.readyPoints;
+  const openingPercent = Math.min(100, Math.max(0, (openingProgress / Math.max(1, openingNeeded)) * 100));
   // Tapping the felt plays the selection, so the offer only appears when that selection is a real meld.
   const selectionMeld = canNewMeld ? interpretNewMeld(selectedCards)[0] : undefined;
+  const gameLog = logEntries.length > 0 && (
+    <details className="log">
+      <summary>{t("table.log")}</summary>
+      <ol aria-live="polite">
+        {logEntries.map((line, i) => (
+          <li key={`${room.log.length - i}-${line}`}>{serverText(line)}</li>
+        ))}
+      </ol>
+    </details>
+  );
 
   return (
     <div className="table">
@@ -373,6 +413,12 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
           <SeatChip key={seat.seat} seat={seat} room={room} />
         ))}
       </ul>
+
+      <div className="round-plaque" aria-label={room.tiebreak ? t("table.tiebreak", { number: room.roundNumber }) : t("table.round", { number: room.roundNumber })}>
+        <span aria-hidden="true">✦</span>
+        <strong>{room.tiebreak ? t("table.tiebreak", { number: room.roundNumber }) : t("table.round", { number: room.roundNumber })}</strong>
+        <span aria-hidden="true">✦</span>
+      </div>
 
       <section className="felt">
         <div className="piles">
@@ -386,8 +432,9 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
             >
               {room.stockCount > 0 ? <CardBack /> : <span className="card card-empty">{t("table.discardEmpty")}</span>}
             </button>
+            <span className="pile-count" aria-hidden="true">{room.stockCount}</span>
             <span className="pile-label">
-              {t("table.stock")} · {t("table.stockCount", { count: room.stockCount })}
+              {t("table.stock")}
             </span>
             {canDraw && <span className="pile-hint">{t("action.drawStock")}</span>}
           </div>
@@ -464,18 +511,19 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
       </section>
 
       <section className={`controls${tipsOpen ? " tips-open" : ""}`} aria-label={t("table.hand")}>
+        {mySeat !== null && playing && needsOpening && (
+          <div className="opening-meter" role="progressbar" aria-label={t("opening.total", { points: openingProgress, needed: openingNeeded })} aria-valuemin={0} aria-valuemax={openingNeeded} aria-valuenow={Math.min(openingNeeded, openingProgress)}>
+            <strong dir="ltr">{openingProgress} / {openingNeeded}</strong>
+            <span className="opening-meter-track" aria-hidden="true"><span style={{ width: `${openingPercent}%` }} /></span>
+          </div>
+        )}
         <p className={`status${myTurn ? " status-mine" : ""}`} role="status" aria-live="polite">
           {status}
         </p>
-        {why && <p className="note hint">{why}</p>}
         {myTurn && room.turnPhase === "draw" && !taking && stockBlocked && <p className="note">{t("turn.stockEmpty")}</p>}
-        {myTurn && room.turnPhase === "draw" && !taking && room.topDiscard && <p className="note hint">{t("action.takeWarning")}</p>}
 
         {mySeat !== null && me && playing && (
           <ul className="planner" aria-label={t("planner.title")}>
-            {playing && needsOpening && !taking && (
-              <li className={plan.readyPoints >= openingNeeded ? "planner-good" : undefined}>{t("planner.ready", { points: plan.readyPoints, needed: openingNeeded })}</li>
-            )}
             {playing && needsOpening && !taking && plan.pointsWithDiscard !== null && discardInReach && (
               <li className={plan.pointsWithDiscard >= openingNeeded ? "planner-good" : "planner-warn"}>
                 {plan.pointsWithDiscard >= openingNeeded ? "✓ " : ""}
@@ -486,26 +534,12 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
           </ul>
         )}
 
-        {showOpening && preview?.ok && (
+        {showOpening && preview?.ok && (!room.settings.openingRequired || preview.openingPoints >= room.settings.openingThreshold) && (
           <p className="opening" role="status">
-            {room.settings.openingRequired ? (
-              <>
-                {t("opening.total", { points: preview.openingPoints, needed: room.settings.openingThreshold })}
-                {preview.openingPoints >= room.settings.openingThreshold && <span className="tag tag-good">✓ {t("opening.reached")}</span>}
-              </>
-            ) : (
-              t("opening.free")
-            )}
+            {room.settings.openingRequired ? `✓ ${t("opening.reached")}` : t("opening.free")}
           </p>
         )}
 
-        {discardBlocked && <p className="note discard-blocked">⚠ {t("turn.discardBlocked", { card: ltr(cardLabel(selectedCards[0])) })}</p>}
-
-        {error && (
-          <p className="error" role="alert">
-            {serverText(error)}
-          </p>
-        )}
         {taking && finalCheck && !finalCheck.ok && !error && <p className="note">{serverText(finalCheck.error)}</p>}
 
         {mySeat !== null && (
@@ -522,72 +556,98 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
               discardLabel={discardInReach ? cardLabel(discardInReach) : null}
             />
 
-            <div className="actions">
-              {taking ? (
-                <>
-                  {finalCheck?.ok && (
-                    <button type="button" className="button button-primary" disabled={busy} onClick={() => void confirmTaking()}>
-                      {t("action.confirm")}
-                    </button>
-                  )}
-                  {staged.length > 0 && (
-                    <button type="button" className="button" onClick={() => setStaged((current) => current.slice(0, -1))}>
-                      {t("action.undo")}
-                    </button>
-                  )}
-                  <button type="button" className="button" onClick={cancelTaking}>
-                    {t("action.cancel")}
-                  </button>
-                </>
-              ) : (
-                myTurn &&
-                room.turnPhase === "play" &&
-                onlyJokers && (
-                  <button type="button" className="button button-primary" disabled={busy} onClick={() => void act({ type: "PASS_TURN" })}>
-                    {t("action.pass")}
-                  </button>
-                )
-              )}
-              {selected.length > 0 && (
-                <button type="button" className="button button-quiet" onClick={() => setSelected([])}>
-                  {t("action.clear")}
-                </button>
-              )}
-            </div>
-            <div className="arrange" role="toolbar" aria-label={t("hand.arrange")}>
-              <span className="arrange-label">{t("hand.arrange")}</span>
+            <div className="actions action-dock">
               <button
                 type="button"
-                className="button button-small button-sort"
+                className="button button-small button-sort action-sort"
                 onClick={() => arrange(bestMeldGrouping(visibleHand).map((group) => group.map((c) => c.id)))}
                 title={t("action.sortHint")}
               >
-                ✨ {t("action.sort")}
+                ↕ {t("action.sort")}
               </button>
-              {selectedCards.length > 0 && (
-                <button type="button" className="button button-small" onClick={() => arrange(groupCards(layout, selected))}>
-                  <span className="label-long">{t("hand.groupSelected")}</span>
-                  <span className="label-short">{t("hand.groupShort")}</span>
+              {taking ? (
+                <button type="button" className="button button-primary action-main" disabled={!finalCheck?.ok || busy} onClick={() => void confirmTaking()}>
+                  {t("action.confirm")}
                 </button>
+              ) : canDraw && room.topDiscard ? (
+                <button type="button" className="button button-primary action-main" onClick={startTaking}>
+                  {t("action.takeDiscard")}
+                </button>
+              ) : canDraw ? (
+                <button type="button" className="button button-primary action-main" onClick={() => void act({ type: "DRAW_FROM_STOCK" })}>
+                  {t("action.drawStock")}
+                </button>
+              ) : canDiscard ? (
+                <button type="button" className="button button-primary action-main" disabled={busy} onClick={() => void act({ type: "DISCARD_CARD", cardId: selectedCards[0].id })}>
+                  {t("action.discard")} {ltr(cardLabel(selectedCards[0]))}
+                </button>
+              ) : selectionMeld ? (
+                <button type="button" className="button button-primary action-main" disabled={busy} onClick={newMeld}>
+                  {t("action.playHere")}
+                </button>
+              ) : myTurn && onlyJokers ? (
+                <button type="button" className="button button-primary action-main" disabled={busy} onClick={() => void act({ type: "PASS_TURN" })}>
+                  {t("action.pass")}
+                </button>
+              ) : myTurn && room.turnPhase === "play" ? (
+                <button type="button" className="button button-primary action-main" disabled>
+                  {t("action.discard")}
+                </button>
+              ) : (
+                <span className="action-main-placeholder" aria-hidden="true" />
               )}
-              <button type="button" className="button button-small tips-toggle" aria-pressed={tipsOpen} aria-label={t("hand.tips")} onClick={() => setTipsOpen((open) => !open)}>
+              <button type="button" className="button button-small tips-toggle action-help" aria-expanded={tipsOpen} aria-controls="table-help" aria-label={t("hand.tips")} onClick={() => setTipsOpen((open) => !open)}>
                 ?
               </button>
             </div>
-            <p className="note hint">{t("hand.hint")}</p>
-            {canPlayNow && <p className="note hint">{t("action.addHint")}</p>}
+            {(taking || selected.length > 0) && (
+              <div className="arrange action-secondary" role="toolbar" aria-label={t("hand.arrange")}>
+                {staged.length > 0 && (
+                  <button type="button" className="button button-small" onClick={() => setStaged((current) => current.slice(0, -1))}>
+                    {t("action.undo")}
+                  </button>
+                )}
+                {taking && (
+                  <button type="button" className="button button-small" onClick={cancelTaking}>
+                    {t("action.cancel")}
+                  </button>
+                )}
+                {selectedCards.length > 0 && (
+                  <button type="button" className="button button-small" onClick={() => arrange(groupCards(layout, selected))}>
+                    <span className="label-long">{t("hand.groupSelected")}</span>
+                    <span className="label-short">{t("hand.groupShort")}</span>
+                  </button>
+                )}
+                {selected.length > 0 && (
+                  <button type="button" className="button button-small button-quiet" onClick={() => setSelected([])}>
+                    {t("action.clear")}
+                  </button>
+                )}
+              </div>
+            )}
+            <div className="table-help" id="table-help" hidden={!tipsOpen}>
+              {why && <p>{why}</p>}
+              {myTurn && room.turnPhase === "draw" && !taking && room.topDiscard && <p>{t("action.takeWarning")}</p>}
+              <p>{t("hand.hint")}</p>
+              {canPlayNow && <p>{t("action.addHint")}</p>}
+              {gameLog}
+            </div>
           </>
         )}
       </section>
 
-      <details className="log">
-        <summary>{t("table.log")}</summary>
-        <ol aria-live="polite">
-          {room.log.slice(-12).map((line, i) => (
-            <li key={`${room.log.length - i}-${line}`}>{serverText(line)}</li>
-          ))}
-        </ol>
-      </details>
+      {visibleWarning && (
+        <div className="play-warning" role="alert" aria-atomic="true">
+          <span className="play-warning-icon" aria-hidden="true">!</span>
+          <div className="play-warning-copy">
+            <strong>{t("warning.title")}</strong>
+            <p>{visibleWarning}</p>
+          </div>
+          <button type="button" className="play-warning-close" onClick={dismissWarning} aria-label={t("warning.dismiss")}>×</button>
+        </div>
+      )}
+
+      {mySeat === null && gameLog}
 
       {swapChoice && (
         <div className="overlay" role="dialog" aria-modal="true" aria-labelledby="swap-title">

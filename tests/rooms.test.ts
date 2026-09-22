@@ -19,9 +19,23 @@ function setup(hostGrace = HOST_GRACE) {
       },
       onClosed: (room: Room, reason: string) => closed.push({ code: room.code, reason }),
     },
-    { botDelayMs: BOT_DELAY, reconnectGraceMs: GRACE, hostGraceMs: hostGrace, seed: () => 11 },
+    { botDelayMs: BOT_DELAY, reconnectGraceMs: GRACE, hostGraceMs: hostGrace, seed: () => 11, shuffleRitualEnabled: false },
   );
   return { manager, closed, updateCount: () => updates };
+}
+
+function ritualSetup() {
+  const manager = new RoomManager(
+    { onUpdate: () => undefined, onClosed: () => undefined },
+    { botDelayMs: BOT_DELAY, reconnectGraceMs: GRACE, hostGraceMs: HOST_GRACE, seed: () => 11, shuffleTimeoutMs: 100, shuffleAutoStepMs: 10, shuffleDealMs: 20 },
+  );
+  const host = must(manager.createRoom("Mona", DEFAULT_SETTINGS));
+  const players = [host, ...["Omar", "Nour", "Salma"].map((name) => must(manager.joinRoom(name, host.roomCode)))];
+  must(manager.startMatch(host.roomCode, host.playerId));
+  const dealerSeat = view(manager, host).dealerSeat;
+  const dealer = players.find((session) => view(manager, session).viewer.seat === dealerSeat);
+  if (!dealer) throw new Error("No human dealer");
+  return { manager, host, players, dealer };
 }
 
 function must<T>(result: { ok: true; data: T } | { ok: false; error: string }): T {
@@ -52,6 +66,76 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers();
+});
+
+describe("cosmetic dealer shuffle", () => {
+  it("gates all hands until the dealer completes three swipes without changing the deck", () => {
+    const { manager, host, players, dealer } = ritualSetup();
+    const round = manager.authenticate(host)?.room.match?.round;
+    if (!round) throw new Error("No round");
+    const originalHands = round.hands.map((hand) => hand.map((card) => card.id));
+    const originalStock = round.stock.map((card) => card.id);
+    const stranger = players.find((player) => player.playerId !== dealer.playerId)!;
+
+    for (const player of players) {
+      const state = view(manager, player);
+      expect(state.shuffleRitual).toMatchObject({ phase: "shuffling", swipes: 0 });
+      expect(state.hand).toEqual([]);
+      expect(state.seats.every((seat) => seat.cardCount === 0)).toBe(true);
+      expect(state.stockCount).toBe(0);
+      expect(state.topDiscard).toBeNull();
+    }
+    expect(manager.gameAction(host.roomCode, host.playerId, { type: "DRAW_FROM_STOCK" }).ok).toBe(false);
+    expect(manager.shuffleSwipe(stranger.roomCode, stranger.playerId).ok).toBe(false);
+
+    for (let count = 1; count <= 3; count++) {
+      must(manager.shuffleSwipe(dealer.roomCode, dealer.playerId));
+      expect(view(manager, host).shuffleRitual?.swipes).toBe(count);
+    }
+    expect(view(manager, host).shuffleRitual?.phase).toBe("dealing");
+    expect(view(manager, host).hand).toEqual([]);
+    expect(manager.shuffleSwipe(dealer.roomCode, dealer.playerId).ok).toBe(false);
+    vi.advanceTimersByTime(20);
+    expect(view(manager, host).shuffleRitual).toBeNull();
+    expect(view(manager, host).hand).toHaveLength(14);
+    expect(round.hands.map((hand) => hand.map((card) => card.id))).toEqual(originalHands);
+    expect(round.stock.map((card) => card.id)).toEqual(originalStock);
+  });
+
+  it("auto-completes after dealer inactivity or disconnection", () => {
+    const timedOut = ritualSetup();
+    vi.advanceTimersByTime(100 + 10 + 10 + 20);
+    expect(view(timedOut.manager, timedOut.host).shuffleRitual).toBeNull();
+
+    const disconnected = ritualSetup();
+    disconnected.manager.markDisconnected(disconnected.dealer.roomCode, disconnected.dealer.playerId);
+    vi.advanceTimersByTime(10 + 10 + 10 + 20);
+    expect(view(disconnected.manager, disconnected.host).shuffleRitual).toBeNull();
+  });
+
+  it("lets a bot dealer shuffle automatically and repeats the ritual next round", () => {
+    const manager = new RoomManager(
+      { onUpdate: () => undefined, onClosed: () => undefined },
+      { seed: () => 11, botDelayMs: 1000, shuffleAutoStepMs: 10, shuffleDealMs: 20 },
+    );
+    const host = must(manager.createRoom("Mona", DEFAULT_SETTINGS));
+    must(manager.startMatch(host.roomCode, host.playerId));
+    expect(view(manager, host).seats[view(manager, host).dealerSeat!].kind).toBe("bot");
+    vi.advanceTimersByTime(10);
+    expect(view(manager, host).shuffleRitual?.swipes).toBe(1);
+    vi.advanceTimersByTime(10 + 10 + 20);
+    expect(view(manager, host).shuffleRitual).toBeNull();
+
+    const room = manager.authenticate(host)?.room;
+    if (!room?.match) throw new Error("No match");
+    const previousDealer = room.match.round.dealerSeat;
+    room.match.status = "round-end";
+    room.status = "round-end";
+    must(manager.startNextRound(host.roomCode, host.playerId));
+    expect(view(manager, host).roundNumber).toBe(2);
+    expect(view(manager, host).shuffleRitual).toMatchObject({ phase: "shuffling", swipes: 0, dealerSeat: (previousDealer + 1) % 4 });
+    expect(view(manager, host).hand).toEqual([]);
+  });
 });
 
 describe("rooms and seats", () => {

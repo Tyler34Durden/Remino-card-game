@@ -1,0 +1,393 @@
+/* The café tabletop is scenery only. Every card, player, score, and action remains live UI. */
+.game {
+  position: relative;
+  isolation: isolate;
+  background: #83c9c9;
+}
+
+.game::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(180deg, rgba(15, 55, 57, 0.25), rgba(15, 55, 57, 0.02) 32%, rgba(15, 55, 57, 0.11) 100%),
+    url("/backgrounds/plastic-cafe-table-topdown-v1.jpg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.game .topbar {
+  background: rgba(13, 65, 68, 0.9);
+  color: #fff9eb;
+  box-shadow: 0 2px 14px rgba(10, 51, 52, 0.22);
+  backdrop-filter: blur(10px);
+}
+
+.game .topbar-title,
+.game .room-code {
+  color: #fff9eb;
+}
+
+.game .table {
+  position: relative;
+}
+
+.game .seats {
+  align-items: stretch;
+}
+
+.game .seat-chip {
+  min-width: 0;
+  padding: 0.4rem 0.55rem;
+  border: 1px solid rgba(255, 255, 255, 0.85);
+  border-radius: 16px;
+  background: rgba(255, 253, 246, 0.94);
+  box-shadow: 0 4px 14px rgba(15, 65, 66, 0.2);
+  backdrop-filter: blur(10px);
+}
+
+.game .seat-active {
+  border-color: #f9b838;
+  background: #fffaf0;
+  box-shadow: 0 0 0 3px rgba(255, 195, 62, 0.72), 0 5px 18px rgba(80, 59, 12, 0.24);
+}
+
+.seat-chip-head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+}
+
+.seat-chip-copy {
+  min-width: 0;
+  flex: 1;
+}
+
+.seat-avatar {
+  display: grid;
+  place-items: center;
+  flex: 0 0 2.35rem;
+  width: 2.35rem;
+  height: 2.35rem;
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  border-radius: 50%;
+  color: #173e44;
+  font-size: 1.15rem;
+  font-weight: 900;
+  line-height: 1;
+  box-shadow: 0 0 0 1px rgba(22, 94, 97, 0.24);
+}
+
+.seat-avatar-0 { background: #ffd898; }
+.seat-avatar-1 { background: #aee3df; }
+.seat-avatar-2 { background: #ffc6b7; }
+.seat-avatar-3 { background: #d8c7f6; }
+.seat-avatar-4 { background: #cce4a2; }
+.seat-avatar-5 { background: #f7c4db; }
+
+.game .seat-chip-name {
+  gap: 0.2rem;
+  min-width: 0;
+  line-height: 1.15;
+}
+
+.game .seat-chip-name strong {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game .seat-chip-info {
+  flex-wrap: wrap;
+  gap: 0.1rem 0.5rem;
+  color: #28525a;
+  font-size: 0.72rem;
+}
+
+.game .seat-score {
+  color: #143f47;
+  font-weight: 900;
+}
+
+.game .seat-chip-tags {
+  margin-top: 0.15rem;
+}
+
+.game .felt,
+:root[data-theme="dark"] .game .felt {
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.game .felt::before {
+  content: none;
+}
+
+.game .pile {
+  color: #17434a;
+  max-width: none;
+  text-shadow: none;
+}
+
+.game .pile-label {
+  padding: 0.1rem 0.48rem;
+  border-radius: 999px;
+  background: rgba(255, 253, 245, 0.9);
+  box-shadow: 0 2px 6px rgba(17, 67, 72, 0.14);
+}
+
+.game .pile-hint {
+  box-shadow: 0 2px 7px rgba(89, 53, 10, 0.2);
+}
+
+.game .melds > .note {
+  align-self: flex-start;
+  margin: 0;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  background: rgba(255, 253, 245, 0.88);
+  color: #31565d;
+}
+
+.game .meld {
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255, 253, 245, 0.86);
+  box-shadow: 0 3px 12px rgba(17, 67, 72, 0.18);
+  backdrop-filter: blur(8px);
+}
+
+.game .meld-target {
+  border-color: #e8a529;
+  background: rgba(255, 242, 199, 0.94);
+  box-shadow: 0 0 0 2px rgba(245, 176, 48, 0.7);
+}
+
+.game .meld-pending {
+  border-color: #d89522;
+}
+
+.game .meld-label,
+.game .meld-label span:first-child {
+  color: #234d51;
+}
+
+.game .meld-drop {
+  border: 2px dashed #d78c1c;
+  background: rgba(255, 249, 226, 0.93);
+  color: #234d51;
+  box-shadow: 0 3px 12px rgba(17, 67, 72, 0.15);
+}
+
+.game .meld-drop:hover:not(:disabled) {
+  background: #fff4d1;
+}
+
+.game .meld-drop-points {
+  color: #77500b;
+}
+
+.game .controls {
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  background: rgba(255, 253, 246, 0.95);
+  box-shadow: 0 6px 22px rgba(13, 65, 68, 0.2);
+  backdrop-filter: blur(14px);
+}
+
+.game .status-mine {
+  border-inline-start-color: #e99d22;
+  background: #fff0c5;
+  color: #16414a;
+}
+
+.game .log {
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  background: rgba(255, 253, 246, 0.91);
+  box-shadow: 0 3px 12px rgba(13, 65, 68, 0.12);
+  backdrop-filter: blur(10px);
+}
+
+:root[data-theme="dark"] .game::before {
+  background-image:
+    linear-gradient(rgba(4, 28, 32, 0.5), rgba(4, 28, 32, 0.38)),
+    url("/backgrounds/plastic-cafe-table-topdown-v1.jpg");
+}
+
+:root[data-theme="dark"] .game .seat-chip,
+:root[data-theme="dark"] .game .controls,
+:root[data-theme="dark"] .game .log,
+:root[data-theme="dark"] .game .meld {
+  border-color: rgba(207, 231, 225, 0.18);
+  background: rgba(20, 41, 40, 0.94);
+}
+
+:root[data-theme="dark"] .game .seat-active,
+:root[data-theme="dark"] .game .meld-target {
+  border-color: #f3b95f;
+  background: rgba(55, 55, 37, 0.96);
+}
+
+:root[data-theme="dark"] .game .seat-chip-info,
+:root[data-theme="dark"] .game .seat-score,
+:root[data-theme="dark"] .game .meld-label,
+:root[data-theme="dark"] .game .meld-label span:first-child {
+  color: #e9f5ec;
+}
+
+:root[data-theme="dark"] .game .pile-label,
+:root[data-theme="dark"] .game .melds > .note {
+  background: rgba(21, 47, 47, 0.92);
+  color: #f1f8f0;
+}
+
+:root[data-theme="dark"] .game .meld-drop {
+  border-color: #f3b95f;
+  background: rgba(35, 58, 54, 0.96);
+  color: #f1f8f0;
+}
+
+:root[data-theme="dark"] .game .meld-drop-points {
+  color: #ffe6a9;
+}
+
+:root[data-theme="dark"] .game .status-mine {
+  background: #3b2e1a;
+  color: #fff3d5;
+}
+
+:root[data-theme="dark"] .game .planner li {
+  color: #e8f4ec;
+}
+
+@media (max-width: 640px) {
+  .game::before,
+  :root[data-theme="dark"] .game::before {
+    background-size: cover;
+    background-position: center;
+  }
+
+  .game .topbar {
+    min-height: 3.15rem;
+  }
+
+  .game .table {
+    gap: 0.35rem;
+    padding: 0.4rem 0.45rem 0;
+  }
+
+  .game .seats {
+    gap: 0.4rem;
+    padding: 0.2rem 0.25rem 0.35rem;
+    margin: -0.2rem -0.25rem -0.15rem;
+  }
+
+  .game .seat-chip {
+    flex: 0 0 8.8rem;
+    min-width: 8.8rem;
+    padding: 0.3rem 0.4rem;
+  }
+
+  .game .seats .seat-me {
+    min-width: 9.7rem;
+    max-width: 9.7rem;
+    box-shadow: 0 2px 7px rgba(15, 65, 66, 0.18), 0 0 0 3px rgba(235, 249, 243, 0.8);
+  }
+
+  .seat-avatar {
+    flex-basis: 2rem;
+    width: 2rem;
+    height: 2rem;
+    font-size: 1rem;
+  }
+
+  .seat-chip-head {
+    gap: 0.35rem;
+  }
+
+  .game .seat-chip-name strong {
+    font-size: 0.78rem;
+  }
+
+  .game .seat-chip .turn-marker {
+    display: none;
+  }
+
+  .game .seat-chip-info {
+    flex-wrap: wrap;
+    gap: 0.25rem;
+    font-size: 0.68rem;
+  }
+
+  .game .seat-hand-value {
+    flex-basis: 100%;
+  }
+
+  .game .seat-chip-tags .tag {
+    font-size: 0.58rem;
+  }
+
+  .game .felt {
+    padding: 0.65rem 0.25rem 0.35rem;
+  }
+
+  .game .piles {
+    gap: 1.25rem;
+  }
+
+  .game .pile {
+    font-size: 0.68rem;
+  }
+
+  .game .pile-hint {
+    font-size: 0.64rem;
+  }
+
+  .game .melds {
+    align-content: flex-start;
+    overflow-y: auto;
+    min-height: 3.2rem;
+    max-height: 26dvh;
+    padding: 0.25rem;
+  }
+
+  .game .controls {
+    margin: 0 -0.45rem;
+    padding: 0.45rem 0.6rem calc(0.5rem + env(safe-area-inset-bottom));
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -7px 24px rgba(13, 65, 68, 0.22);
+  }
+
+  .game .status {
+    margin-bottom: 0.25rem;
+  }
+
+  .game .status-mine {
+    padding: 0.28rem 0.5rem;
+  }
+
+  .game .log {
+    border-radius: 10px;
+  }
+}
+
+@media (max-width: 360px) {
+  .game .seat-chip {
+    flex-basis: 8.2rem;
+    min-width: 8.2rem;
+  }
+
+  .game .seats .seat-me {
+    min-width: 9.7rem;
+    max-width: 9.7rem;
+  }
+
+  .game .seat-chip-info {
+    font-size: 0.59rem;
+  }
+}

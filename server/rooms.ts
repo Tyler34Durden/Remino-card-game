@@ -15,6 +15,7 @@ const CODE_LENGTH = 6;
 const BOT_NAMES = ["Salem", "Hamza", "Faraj", "Mansour", "Younes", "Khalifa"];
 const MAX_LOG_LINES = 40;
 const MAX_BOT_STEPS_PER_TURN = 40;
+const SHUFFLE_SWIPES = 3;
 
 export interface RoomOptions {
   /** Pause before each bot action, so humans can follow the game. */
@@ -27,6 +28,11 @@ export interface RoomOptions {
   emptyRoomTtlMs: number;
   maxRooms: number;
   seed: () => number;
+  /** Test servers may bypass the cosmetic ritual while exercising game rules. */
+  shuffleRitualEnabled: boolean;
+  shuffleTimeoutMs: number;
+  shuffleAutoStepMs: number;
+  shuffleDealMs: number;
 }
 
 export const DEFAULT_ROOM_OPTIONS: RoomOptions = {
@@ -36,6 +42,10 @@ export const DEFAULT_ROOM_OPTIONS: RoomOptions = {
   emptyRoomTtlMs: 10 * 60_000,
   maxRooms: 500,
   seed: () => randomInt(0, 2 ** 31 - 1),
+  shuffleRitualEnabled: true,
+  shuffleTimeoutMs: 6_000,
+  shuffleAutoStepMs: 450,
+  shuffleDealMs: 1_650,
 };
 
 interface Player {
@@ -69,6 +79,8 @@ export interface Room {
   version: number;
   botTimer: ReturnType<typeof setTimeout> | null;
   botSteps: { turn: number; count: number };
+  shuffleRitual: { phase: "shuffling" | "dealing"; swipes: number; dealerSeat: number; roundNumber: number } | null;
+  shuffleTimer: ReturnType<typeof setTimeout> | null;
   lastActivity: number;
 }
 
@@ -128,6 +140,8 @@ export class RoomManager {
       version: 1,
       botTimer: null,
       botSteps: { turn: -1, count: 0 },
+      shuffleRitual: null,
+      shuffleTimer: null,
       lastActivity: Date.now(),
     };
     this.rooms.set(code, room);
@@ -202,6 +216,9 @@ export class RoomManager {
     player.graceTimer = setTimeout(() => this.graceExpired(room.code, player.id), grace);
     this.say(room, `${player.name} lost connection.`);
     this.changed(room);
+    if (room.shuffleRitual?.phase === "shuffling" && room.shuffleRitual.dealerSeat === player.seat) {
+      this.scheduleShuffleAuto(room, this.options.shuffleAutoStepMs);
+    }
   }
 
   private graceExpired(code: string, playerId: string): void {
@@ -251,6 +268,9 @@ export class RoomManager {
     this.removePlayer(room, player);
     this.say(room, `${player.name} left.`);
     this.changed(room);
+    if (room.shuffleRitual?.phase === "shuffling" && room.shuffleRitual.dealerSeat === player.seat) {
+      this.scheduleShuffleAuto(room, this.options.shuffleAutoStepMs);
+    }
     return done;
   }
 
@@ -295,6 +315,7 @@ export class RoomManager {
     });
     room.match = createMatch(room.settings, this.options.seed());
     room.status = "playing";
+    this.beginShuffleRitual(room);
     this.say(room, `The match begins. ${this.seatName(room, room.match.round.dealerSeat)} deals.`);
     this.changed(room);
     return done;
@@ -307,7 +328,18 @@ export class RoomManager {
     if (!player.isHost) return fail("Only the host can start the next round.");
     if (room.status !== "round-end") return fail("The next round cannot start now.");
     room.match = this.seatWaitingPlayers(room, room.match);
-    return this.commit(room, startNextRound(room.match as MatchState));
+    return this.commit(room, startNextRound(room.match as MatchState), true);
+  }
+
+  shuffleSwipe(code: string, playerId: string): Result {
+    const room = this.rooms.get(code);
+    const player = room?.players.get(playerId);
+    if (!room || !player) return fail("That room no longer exists.");
+    const ritual = room.shuffleRitual;
+    if (!ritual || ritual.phase !== "shuffling") return fail("The shuffle is not waiting for a swipe.");
+    if (player.seat !== ritual.dealerSeat || !player.connected || player.botControlled) return fail("Only the dealer can shuffle.");
+    this.advanceShuffle(room);
+    return done;
   }
 
   endMatchEarly(code: string, playerId: string): Result {
@@ -327,6 +359,7 @@ export class RoomManager {
     const player = room?.players.get(playerId);
     if (!room || !player) return fail("That room no longer exists.");
     if (!room.match || room.status !== "playing") return fail("No round is in progress.");
+    if (room.shuffleRitual) return fail("Wait for the cards to be dealt.");
     if (player.seat === null) return fail("You are waiting for the next round.");
     if (expectedVersion !== undefined && expectedVersion !== room.version) {
       return fail("The table changed before your action arrived. Please try again.");
@@ -334,10 +367,11 @@ export class RoomManager {
     return this.commit(room, applyAction(room.match, player.seat, action));
   }
 
-  private commit(room: Room, result: ActionResult): Result {
+  private commit(room: Room, result: ActionResult, beginRitual = false): Result {
     if (!result.ok) return fail(result.error);
     room.match = result.state;
     room.status = result.state.status;
+    if (beginRitual) this.beginShuffleRitual(room);
     for (const line of result.log) this.say(room, this.withNames(room, line));
     this.changed(room);
     return done;
@@ -348,7 +382,7 @@ export class RoomManager {
   // -------------------------------------------------------------------------
 
   private isBotTurn(room: Room): boolean {
-    if (!room.match || room.status !== "playing") return false;
+    if (!room.match || room.status !== "playing" || room.shuffleRitual) return false;
     const slot = room.seats[room.match.round.activeSeat];
     if (slot.kind === "bot") return true;
     const player = slot.playerId ? room.players.get(slot.playerId) : undefined;
@@ -408,14 +442,14 @@ export class RoomManager {
         connected: player ? player.connected : true,
         botControlled: !!player && player.botControlled,
         reservedFor: reserved ? reserved.name : null,
-        cardCount: inRound && round ? round.hands[seat].length : 0,
+        cardCount: inRound && round && !room.shuffleRitual ? round.hands[seat].length : 0,
         opened: inRound && round ? round.opened[seat] : false,
         score: match ? match.scores[seat] : 0,
       };
     });
     const showResult = room.status === "round-end" || room.status === "match-end";
     const mySeat = viewer.seat;
-    const isMyTurn = inRound && round && mySeat !== null && round.activeSeat === mySeat;
+    const isMyTurn = inRound && round && !room.shuffleRitual && mySeat !== null && round.activeSeat === mySeat;
     return {
       code: room.code,
       status: room.status,
@@ -423,18 +457,19 @@ export class RoomManager {
       settings: room.settings,
       seats,
       viewer: { playerId: viewer.id, name: viewer.name, seat: mySeat, isHost: viewer.isHost, waiting: mySeat === null },
-      hand: inRound && round && mySeat !== null ? round.hands[mySeat] : [],
+      hand: inRound && round && !room.shuffleRitual && mySeat !== null ? round.hands[mySeat] : [],
       drawnCardId: isMyTurn && round ? round.drawnCardId : null,
       roundNumber: round ? round.roundNumber : 0,
       tiebreak: match ? match.tiebreak : false,
       dealerSeat: round ? round.dealerSeat : null,
+      shuffleRitual: room.shuffleRitual ? { phase: room.shuffleRitual.phase, swipes: room.shuffleRitual.swipes, dealerSeat: room.shuffleRitual.dealerSeat } : null,
       activeSeat: room.status === "playing" && round ? round.activeSeat : null,
       turnPhase: round ? round.phase : "draw",
       cardSource: round ? round.source : null,
-      stockCount: round ? round.stock.length : 0,
-      discardCount: round ? round.discard.length : 0,
-      topDiscard: round ? (round.discard[round.discard.length - 1] ?? null) : null,
-      melds: round ? round.melds : [],
+      stockCount: round && !room.shuffleRitual ? round.stock.length : 0,
+      discardCount: round && !room.shuffleRitual ? round.discard.length : 0,
+      topDiscard: round && !room.shuffleRitual ? (round.discard[round.discard.length - 1] ?? null) : null,
+      melds: round && !room.shuffleRitual ? round.melds : [],
       nextMeldId: round ? round.nextMeldId : 1,
       lastResult: match && showResult ? match.lastResult : null,
       matchWinnerSeat: match ? match.matchWinnerSeat : null,
@@ -480,6 +515,55 @@ export class RoomManager {
   // -------------------------------------------------------------------------
   // Internals
   // -------------------------------------------------------------------------
+
+  /** The deck is already dealt in MatchState; this gate only controls when clients see it. */
+  private beginShuffleRitual(room: Room): void {
+    if (room.shuffleTimer) clearTimeout(room.shuffleTimer);
+    room.shuffleTimer = null;
+    if (!this.options.shuffleRitualEnabled || !room.match) {
+      room.shuffleRitual = null;
+      return;
+    }
+    const dealerSeat = room.match.round.dealerSeat;
+    room.shuffleRitual = { phase: "shuffling", swipes: 0, dealerSeat, roundNumber: room.match.round.roundNumber };
+    const slot = room.seats[dealerSeat];
+    const dealer = slot.playerId ? room.players.get(slot.playerId) : undefined;
+    const humanReady = slot.kind === "human" && dealer?.connected && !dealer.botControlled;
+    this.scheduleShuffleAuto(room, humanReady ? this.options.shuffleTimeoutMs : this.options.shuffleAutoStepMs);
+  }
+
+  private scheduleShuffleAuto(room: Room, delayMs: number): void {
+    if (room.shuffleTimer) clearTimeout(room.shuffleTimer);
+    const roundNumber = room.shuffleRitual?.roundNumber;
+    room.shuffleTimer = setTimeout(() => {
+      room.shuffleTimer = null;
+      const current = this.rooms.get(room.code);
+      if (!current || !current.shuffleRitual || current.shuffleRitual.roundNumber !== roundNumber || current.shuffleRitual.phase !== "shuffling") return;
+      this.advanceShuffle(current);
+      if (current.shuffleRitual?.phase === "shuffling") this.scheduleShuffleAuto(current, this.options.shuffleAutoStepMs);
+    }, delayMs);
+  }
+
+  private advanceShuffle(room: Room): void {
+    const ritual = room.shuffleRitual;
+    if (!ritual || ritual.phase !== "shuffling") return;
+    ritual.swipes += 1;
+    if (ritual.swipes < SHUFFLE_SWIPES) {
+      this.changed(room);
+      return;
+    }
+    if (room.shuffleTimer) clearTimeout(room.shuffleTimer);
+    ritual.phase = "dealing";
+    this.changed(room);
+    const roundNumber = ritual.roundNumber;
+    room.shuffleTimer = setTimeout(() => {
+      room.shuffleTimer = null;
+      const current = this.rooms.get(room.code);
+      if (!current || !current.shuffleRitual || current.shuffleRitual.roundNumber !== roundNumber || current.shuffleRitual.phase !== "dealing") return;
+      current.shuffleRitual = null;
+      this.changed(current);
+    }, this.options.shuffleDealMs);
+  }
 
   private emptySeats(count: number): SeatSlot[] {
     return Array.from({ length: count }, (_, i) => ({ kind: "empty" as const, playerId: null, botName: `Bot ${BOT_NAMES[i]}` }));
@@ -538,6 +622,8 @@ export class RoomManager {
   private closeRoom(room: Room, reason: string): void {
     if (room.botTimer) clearTimeout(room.botTimer);
     room.botTimer = null;
+    if (room.shuffleTimer) clearTimeout(room.shuffleTimer);
+    room.shuffleTimer = null;
     for (const player of room.players.values()) {
       if (player.graceTimer) clearTimeout(player.graceTimer);
     }

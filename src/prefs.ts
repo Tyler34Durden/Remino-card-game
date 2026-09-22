@@ -68,7 +68,7 @@ export function usePrefs(): { prefs: Prefs; dark: boolean; toggle: (key: Boolean
 
 let audio: AudioContext | null = null;
 
-export type SoundName = "turn" | "card" | "win" | "error";
+export type SoundName = "turn" | "card" | "shuffle" | "win" | "error";
 
 const TONES: Record<SoundName, { frequency: number; duration: number; type: OscillatorType }[]> = {
   turn: [
@@ -76,6 +76,7 @@ const TONES: Record<SoundName, { frequency: number; duration: number; type: Osci
     { frequency: 880, duration: 0.12, type: "sine" },
   ],
   card: [{ frequency: 320, duration: 0.05, type: "triangle" }],
+  shuffle: [],
   win: [
     { frequency: 523, duration: 0.12, type: "sine" },
     { frequency: 659, duration: 0.12, type: "sine" },
@@ -89,6 +90,23 @@ export function playSound(name: SoundName, enabled: boolean): void {
   if (!enabled) return;
   try {
     audio ??= new AudioContext();
+    if (name === "shuffle") {
+      const length = Math.floor(audio.sampleRate * 0.16);
+      const buffer = audio.createBuffer(1, length, audio.sampleRate);
+      const samples = buffer.getChannelData(0);
+      for (let i = 0; i < length; i++) samples[i] = (Math.random() * 2 - 1) * (1 - i / length);
+      const source = audio.createBufferSource();
+      const filter = audio.createBiquadFilter();
+      const gain = audio.createGain();
+      source.buffer = buffer;
+      filter.type = "bandpass";
+      filter.frequency.value = 1900;
+      filter.Q.value = 0.6;
+      gain.gain.value = 0.14;
+      source.connect(filter).connect(gain).connect(audio.destination);
+      source.start();
+      return;
+    }
     let start = audio.currentTime;
     for (const tone of TONES[name]) {
       const oscillator = audio.createOscillator();

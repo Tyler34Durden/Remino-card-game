@@ -43,6 +43,7 @@ export interface Game {
   updateSettings: (settings: RoomSettings) => Promise<boolean>;
   startMatch: () => Promise<boolean>;
   startNextRound: () => Promise<boolean>;
+  shuffleSwipe: () => Promise<boolean>;
   endMatchEarly: () => Promise<boolean>;
   act: (action: GameAction) => Promise<boolean>;
   leave: () => Promise<void>;
@@ -136,7 +137,7 @@ export function useGame(): Game {
   );
 
   const simple = useCallback(
-    (event: "start_match" | "start_next_round" | "end_match_early") =>
+    (event: "start_match" | "start_next_round" | "shuffle_swipe" | "end_match_early") =>
       new Promise<boolean>((resolve) => {
         socketRef.current?.emit(event, (response) => resolve(handle(response)));
       }),
@@ -192,6 +193,7 @@ export function useGame(): Game {
     updateSettings,
     startMatch: useCallback(() => simple("start_match"), [simple]),
     startNextRound: useCallback(() => simple("start_next_round"), [simple]),
+    shuffleSwipe: useCallback(() => simple("shuffle_swipe"), [simple]),
     endMatchEarly: useCallback(() => simple("end_match_early"), [simple]),
     act,
     leave,

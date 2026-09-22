@@ -62,6 +62,9 @@ const EXACT: Record<string, string> = {
   // Turn and play rejections
   "It is not your turn.": "ليس دورك الآن.",
   "No round is in progress.": "لا توجد جولة جارية.",
+  "Wait for the cards to be dealt.": "انتظر حتى ينتهي توزيع الورق.",
+  "The shuffle is not waiting for a swipe.": "الخلط لا ينتظر حركة سحب الآن.",
+  "Only the dealer can shuffle.": "الموزّع وحده يستطيع خلط الورق.",
   "Unknown seat.": "مقعد غير معروف.",
   "Unknown action.": "حركة غير معروفة.",
   "Unknown table play.": "لعبة غير معروفة.",

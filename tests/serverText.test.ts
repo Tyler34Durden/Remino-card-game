@@ -135,7 +135,7 @@ describe("server text in Arabic", () => {
   it("translates room messages, room log lines, and closing reasons", () => {
     vi.useFakeTimers();
     const closed: string[] = [];
-    const manager = new RoomManager({ onUpdate: () => undefined, onClosed: (_room, reason) => closed.push(reason) }, { botDelayMs: 5, reconnectGraceMs: 50, hostGraceMs: 200, seed: () => 3 });
+    const manager = new RoomManager({ onUpdate: () => undefined, onClosed: (_room, reason) => closed.push(reason) }, { botDelayMs: 5, reconnectGraceMs: 50, hostGraceMs: 200, seed: () => 3, shuffleRitualEnabled: false });
     const errors = new Set<string>();
     const note = (result: { ok: boolean; error?: string }) => {
       if (!result.ok && result.error) errors.add(result.error);

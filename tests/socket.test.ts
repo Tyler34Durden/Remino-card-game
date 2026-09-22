@@ -37,7 +37,7 @@ function ask<T>(run: (ack: (response: AckResponse<T>) => void) => void): Promise
 }
 
 beforeEach(async () => {
-  server = createGameServer({ botDelayMs: 5, reconnectGraceMs: 80, hostGraceMs: 400 }, true);
+  server = createGameServer({ botDelayMs: 5, reconnectGraceMs: 80, hostGraceMs: 400, shuffleRitualEnabled: false }, true);
   await new Promise<void>((resolve) => server.http.listen(0, resolve));
   url = `http://localhost:${(server.http.address() as AddressInfo).port}`;
 });

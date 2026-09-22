@@ -10,6 +10,7 @@ import { Results } from "./components/Results.tsx";
 import { Rules } from "./components/Rules.tsx";
 import { settingsSummary } from "./components/SettingsForm.tsx";
 import { Table } from "./components/Table.tsx";
+import { ShuffleRitual } from "./components/ShuffleRitual.tsx";
 
 export function App() {
   const game = useGame();
@@ -145,7 +146,7 @@ export function App() {
         </p>
       )}
 
-      <Table game={game} room={room} prefs={prefs} />
+      {room.shuffleRitual ? <ShuffleRitual game={game} room={room} ritual={room.shuffleRitual} prefs={prefs} /> : <Table game={game} room={room} prefs={prefs} />}
 
       {hasResult && !resultsHidden && <Results game={game} room={room} onHide={() => setResultsHidden(true)} onLeave={leave} />}
       {hasResult && resultsHidden && (

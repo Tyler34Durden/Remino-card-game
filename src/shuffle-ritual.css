@@ -1,0 +1,219 @@
+/* The deck is a playful, temporary layer over the same plastic café table. */
+.game .shuffle-scene {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: calc(100dvh - 3.2rem);
+  padding: clamp(0.75rem, 3vh, 2rem) 1rem 2rem;
+  overflow: hidden;
+  color: #183e45;
+}
+
+.game .shuffle-players {
+  display: flex;
+  justify-content: center;
+  gap: clamp(0.45rem, 2vw, 1.5rem);
+  width: min(100%, 56rem);
+}
+
+.game .shuffle-player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+  flex: 1 1 0;
+  text-align: center;
+  font-size: clamp(0.7rem, 1.5vw, 0.9rem);
+}
+
+.game .shuffle-player .seat-avatar {
+  flex: none;
+  width: clamp(2.9rem, 9vw, 5.5rem);
+  height: clamp(2.9rem, 9vw, 5.5rem);
+}
+
+.game .shuffle-player strong {
+  max-width: 100%;
+  padding: 0.17rem 0.45rem;
+  overflow: hidden;
+  border-radius: 0.5rem;
+  background: rgba(15, 56, 62, 0.87);
+  color: #fff8e9;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game .shuffle-player-dealer .seat-avatar {
+  box-shadow: 0 0 0 4px #ffc450, 0 0 18px 6px rgba(255, 192, 62, 0.68);
+}
+
+.game .shuffle-center {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding-bottom: clamp(0rem, 7vh, 4rem);
+  text-align: center;
+}
+
+.game .shuffle-round,
+.game .shuffle-center h1,
+.game .shuffle-instruction,
+.game .shuffle-counter {
+  margin: 0;
+  padding: 0.32rem 0.9rem;
+  border-radius: 0.7rem;
+  background: rgba(255, 249, 228, 0.93);
+  box-shadow: 0 3px 9px rgba(18, 75, 77, 0.18);
+}
+
+.game .shuffle-round {
+  margin-bottom: 0.6rem;
+  background: #174a4b;
+  color: #fff4da;
+  font-weight: 800;
+}
+
+.game .shuffle-center h1 {
+  font-size: clamp(1.35rem, 4vw, 2rem);
+}
+
+.game .shuffle-instruction {
+  max-width: min(90vw, 30rem);
+  margin-top: 0.55rem;
+  font-size: clamp(0.85rem, 2.4vw, 1rem);
+}
+
+.game .shuffle-deck-zone {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(92vw, 32rem);
+  height: clamp(11rem, 30vh, 18rem);
+}
+
+.game .shuffle-deck {
+  position: relative;
+  display: block;
+  width: clamp(6.1rem, 14vh, 8rem);
+  height: clamp(8.7rem, 20vh, 11.5rem);
+  padding: 0;
+  border: 0;
+  background: transparent;
+  cursor: default;
+  touch-action: none;
+}
+
+.game .shuffle-deck-active { cursor: grab; }
+.game .shuffle-deck-active:active { cursor: grabbing; }
+.game .shuffle-deck:focus-visible { outline: 4px solid #ffbd43; outline-offset: 12px; border-radius: 12px; }
+
+.game .shuffle-card-back,
+.game .shuffle-flying-card {
+  position: absolute;
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 0.55rem;
+  background: #ecf2f5 url("/cards/back-blue.png") center / 100% 100% no-repeat;
+  box-shadow: 0 5px 10px rgba(6, 43, 48, 0.32);
+}
+
+.game .shuffle-card-back-left { transform: translate(-8px, 5px) rotate(-7deg); }
+.game .shuffle-card-back-right { transform: translate(7px, 3px) rotate(6deg); }
+.game .shuffle-card-back-top { transform: translateY(-3px); }
+
+.game .shuffle-deck-active .shuffle-card-back-top {
+  animation: shuffle-invite 1.8s ease-in-out infinite;
+}
+
+.game .shuffle-deck-mixed .shuffle-card-back-left { animation: shuffle-mix-left 0.42s ease-out; }
+.game .shuffle-deck-mixed .shuffle-card-back-right { animation: shuffle-mix-right 0.42s ease-out; }
+
+.game .shuffle-progress {
+  display: flex;
+  gap: 0.55rem;
+  margin-top: 0.1rem;
+}
+
+.game .shuffle-progress span {
+  width: 1.45rem;
+  height: 0.52rem;
+  border: 2px solid #17615e;
+  border-radius: 99px;
+  background: #fff8e4;
+}
+
+.game .shuffle-progress .done { background: #ffc450; }
+.game .shuffle-counter { margin-top: 0.55rem; font-size: 0.82rem; font-weight: 800; }
+
+.game .shuffle-flying-card {
+  z-index: 2;
+  left: calc(50% - 2rem);
+  top: calc(50% - 3rem);
+  width: 4rem;
+  height: 5.8rem;
+  pointer-events: none;
+  opacity: 0;
+  animation: shuffle-deal 0.95s var(--deal-delay) ease-out forwards;
+}
+
+.game .shuffle-deck-dealing .shuffle-card-back-top {
+  animation: shuffle-pack 0.4s ease-out forwards;
+}
+
+@keyframes shuffle-invite {
+  50% { transform: translate(12px, -8px) rotate(8deg); }
+}
+
+@keyframes shuffle-mix-left {
+  0% { transform: translate(-45px, -5px) rotate(-20deg); }
+  70% { transform: translate(12px, 6px) rotate(10deg); }
+  100% { transform: translate(-8px, 5px) rotate(-7deg); }
+}
+
+@keyframes shuffle-mix-right {
+  0% { transform: translate(45px, -5px) rotate(20deg); }
+  70% { transform: translate(-10px, 5px) rotate(-10deg); }
+  100% { transform: translate(7px, 3px) rotate(6deg); }
+}
+
+@keyframes shuffle-pack {
+  to { transform: scale(0.82); opacity: 0.65; }
+}
+
+@keyframes shuffle-deal {
+  0% { transform: translate(0, 0) scale(0.75); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translate(var(--deal-x), var(--deal-y)) scale(0.7); opacity: 0; }
+}
+
+@media (max-width: 640px) {
+  .game .shuffle-scene { min-height: calc(100dvh - 2.7rem); padding-inline: 0.5rem; }
+  .game .shuffle-players { gap: 0.2rem; }
+  .game .shuffle-player { font-size: 0.68rem; }
+  .game .shuffle-player .seat-avatar { width: clamp(2.5rem, 13vw, 4rem); height: clamp(2.5rem, 13vw, 4rem); }
+  .game .shuffle-player strong { padding: 0.14rem 0.25rem; }
+  .game .shuffle-deck-zone { height: clamp(10rem, 24vh, 13rem); }
+  .game .shuffle-progress { position: fixed; z-index: 3; bottom: 3.25rem; margin: 0; }
+  .game .shuffle-counter { position: fixed; z-index: 3; bottom: 0.8rem; margin: 0; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game .shuffle-deck-active .shuffle-card-back-top,
+  .game .shuffle-deck-dealing .shuffle-card-back-top,
+  .game .shuffle-deck-mixed .shuffle-card-back-left,
+  .game .shuffle-deck-mixed .shuffle-card-back-right { animation: none; }
+  .game .shuffle-flying-card { display: none; }
+}
+
+:root[data-reduced-motion="true"] .game .shuffle-deck-active .shuffle-card-back-top,
+:root[data-reduced-motion="true"] .game .shuffle-deck-dealing .shuffle-card-back-top,
+:root[data-reduced-motion="true"] .game .shuffle-deck-mixed .shuffle-card-back-left,
+:root[data-reduced-motion="true"] .game .shuffle-deck-mixed .shuffle-card-back-right { animation: none; }
+:root[data-reduced-motion="true"] .game .shuffle-flying-card { display: none; }
