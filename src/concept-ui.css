@@ -745,15 +745,51 @@
     padding: 0.08rem 0.32rem;
   }
 
+  /*
+   * The match column is exactly one screen tall and every wrapper may shrink,
+   * so a busy table scrolls inside the melds area instead of pushing the dock off screen.
+   */
+  .game {
+    height: 100dvh;
+  }
+
+  .game .table {
+    min-height: 0;
+  }
+
+  /*
+   * Melds take whatever the piles leave and scroll when the table gets busy,
+   * instead of shrinking every card to a corner. The card size is what makes them readable.
+   */
   .game .melds {
+    --card-w: 88px;
+    flex: 1 1 auto;
     min-height: 2rem;
-    max-height: 22dvh;
-    gap: 0.2rem;
+    max-height: none;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: none;
+    align-content: flex-start;
+    gap: 0.25rem;
     padding: 0.15rem;
   }
 
+  .game .melds::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* The cards already say set or run and who owns it rarely matters. Only "pending" still needs words. */
   .game .meld-label {
+    display: none;
     font-size: 0.52rem;
+  }
+
+  .game .meld-pending .meld-label {
+    display: flex;
+  }
+
+  .game .meld-pending .meld-label span:not(.tag) {
+    display: none;
   }
 
   .game .controls,
