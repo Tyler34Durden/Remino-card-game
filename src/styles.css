@@ -1091,22 +1091,42 @@ button.card-selected:hover:not(:disabled) {
   unicode-bidi: isolate;
 }
 
-/* The one-tap button on a hand group that is already a legal meld. */
+/*
+ * The one-tap button on a hand group that is already a legal meld.
+ * It takes the place of the group's underline instead of floating above the cards,
+ * where a long label used to overhang the neighbouring group and the dock edge.
+ */
 .hand-group-play {
   position: absolute;
-  inset-inline-start: 0.2rem;
-  top: -0.15rem;
+  inset-inline-start: 2px;
+  bottom: 0;
   z-index: 4;
-  padding: 0.05rem 0.5rem;
-  border: 1px solid var(--gold-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.25rem;
+  width: calc(100% - 4px);
+  padding: 0.05rem 0.2rem;
+  border: 0;
   border-radius: 999px;
   background: var(--gold);
   color: var(--ink);
+  font: inherit;
   font-size: 0.68rem;
   font-weight: 800;
-  line-height: 1.5;
+  line-height: 1.6;
   white-space: nowrap;
   cursor: pointer;
+}
+
+/* The bar is the button now, so the plain underline would only double it. */
+.hand-group:has(.hand-group-play)::after {
+  display: none;
+}
+
+/* The verdict row moves above the bar and keeps only what the bar does not say. */
+.hand-group-valued:has(.hand-group-play) .hand-group-value {
+  bottom: 1.45rem;
 }
 
 .seat-hand-value {

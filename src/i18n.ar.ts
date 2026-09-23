@@ -151,6 +151,7 @@ export const ar: Record<MessageKey, string> = {
   "action.newMeld": "تنزيلة جديدة",
   "action.playHere": "نزّلها تنزيلة جديدة",
   "action.playGroup": "نزّل هذه التنزيلة",
+  "action.playShort": "نزّل",
   "action.throwHere": "ارمِ {card} هنا",
   "action.sort": "رتّب",
   "action.sortHint": "رتّب أوراقي إلى تنزيلات",

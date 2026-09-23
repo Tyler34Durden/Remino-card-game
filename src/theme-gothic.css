@@ -916,7 +916,8 @@ button.card-selected:hover:not(:disabled) {
 }
 
 .hand-group-valued {
-  padding-bottom: 1.5rem;
+  /* Tall enough for the verdict row when it holds the Play button. */
+  padding-bottom: 1.7rem;
 }
 
 .hand-group-value {

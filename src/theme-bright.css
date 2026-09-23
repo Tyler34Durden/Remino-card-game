@@ -604,10 +604,14 @@ button.card-selected:hover:not(:disabled) {
 }
 
 .hand-group-play {
-  border-color: transparent;
   background: linear-gradient(180deg, #ffc96f, var(--amber-deep));
   color: #4a2c00;
-  box-shadow: 0 2px 6px rgba(194, 111, 18, 0.35);
+  box-shadow: 0 1px 4px rgba(194, 111, 18, 0.4);
+}
+
+/* The bar replaces the group's coloured underline, so the border under it would show twice. */
+.hand-group:has(.hand-group-play) {
+  border-bottom-color: transparent;
 }
 
 .hand-slot.drop-before::before,

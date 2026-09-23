@@ -152,6 +152,7 @@ const en = {
   "action.newMeld": "New meld",
   "action.playHere": "Play as a new meld",
   "action.playGroup": "Play this meld",
+  "action.playShort": "Play",
   "action.throwHere": "Throw {card} here",
   "action.sort": "Sort",
   "action.sortHint": "Arrange my hand into melds",

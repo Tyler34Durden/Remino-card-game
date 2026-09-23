@@ -353,6 +353,15 @@
     display: none;
   }
 
+  /* The play bar covers exactly the part of the group the next group does not hide. */
+  .hand-group-play {
+    width: calc(100% - var(--card-w) + var(--step) - 5px);
+  }
+
+  .hand-group:last-of-type .hand-group-play {
+    width: calc(100% - 4px);
+  }
+
   .card-selected,
   button.card-selected:hover:not(:disabled) {
     transform: translateY(-13px);
@@ -406,6 +415,19 @@
   /* In the one-row fan a group can be narrow, so its verdict drops the words and keeps the numbers. */
   .hand-group-valued {
     padding-bottom: 1.45rem;
+  }
+
+  /* The bar sits where the underline was, so on its own it costs no extra height. */
+  .hand-group:has(.hand-group-play) {
+    padding-bottom: 1.5rem;
+  }
+
+  .hand-group-valued:has(.hand-group-play):has(.value-discard) {
+    padding-bottom: 2.8rem;
+  }
+
+  .hand-group-valued:has(.hand-group-play) .hand-group-value {
+    bottom: 1.5rem;
   }
 
   .hand-group-value {
@@ -684,8 +706,6 @@
   }
 
   .hand-group-play {
-    top: -0.1rem;
-    padding: 0.1rem 0.55rem;
     font-size: 0.66rem;
   }
 

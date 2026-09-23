@@ -214,14 +214,19 @@ export function Hand({ cards, layout, selected, badgeFor, onToggle, onMove, plan
               </span>
             );
           })}
-          {showValue && onPlayGroup && (
+          {/*
+           * The bar under a ready group becomes its button: it is already sized to the part
+           * of the group the next group does not cover, so it cannot overhang its neighbour.
+           */}
+          {showValue && plan && onPlayGroup && (
             <button type="button" className="hand-group-play" onClick={() => onPlayGroup(index)} aria-label={t("action.playGroup")}>
-              {t("action.playHere")}
+              <span className="value-go">{t("action.playShort")}</span> {plan.points}
             </button>
           )}
           {captioned && plan && (
             <span className="hand-group-value">
-              {showValue && (
+              {/* The button carries the points, so the plain verdict is only for a hand you cannot play from yet. */}
+              {showValue && !onPlayGroup && (
                 <span className="value-ready">
                   ✓ <span className="value-type">{plan.type === "set" ? t("table.set") : t("table.run")} · </span>
                   {plan.points}
