@@ -339,7 +339,9 @@
     left: 2px;
     bottom: 0;
     width: calc(100% - var(--card-w) + var(--step) - 5px);
-    border-bottom: 3px double var(--brass);
+    height: 4px;
+    border-radius: 999px;
+    background: var(--line);
     pointer-events: none;
   }
 
@@ -403,14 +405,14 @@
 
   /* In the one-row fan a group can be narrow, so its verdict drops the words and keeps the numbers. */
   .hand-group-valued {
-    padding-bottom: 1.25rem;
+    padding-bottom: 1.45rem;
   }
 
   .hand-group-value {
     left: 2px;
-    bottom: 5px;
+    bottom: 4px;
     gap: 0.25rem;
-    font-size: 0.6rem;
+    font-size: 0.72rem;
   }
 
   .hand-group-value .value-type {
@@ -418,7 +420,7 @@
   }
 
   .hand-group-ready::after {
-    border-bottom-color: var(--verdigris);
+    background: var(--leaf);
   }
 
   /* Two big buttons per row. */

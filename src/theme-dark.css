@@ -224,3 +224,14 @@
   color: #f1c97a;
   border-bottom-color: #6b5520;
 }
+
+/* The badges keep their contrast on the dark dock. */
+:root[data-theme="dark"] .hand-group-value .value-ready {
+  background: #2f9e68;
+  color: #f2fff8;
+}
+
+:root[data-theme="dark"] .hand-group-value .value-discard {
+  background: var(--amber);
+  color: #2a1a00;
+}

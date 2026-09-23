@@ -571,7 +571,8 @@ button.card-selected:hover:not(:disabled) {
 }
 
 .hand-group {
-  border-bottom: 3px solid var(--line);
+  border-bottom: 4px solid var(--line);
+  border-radius: 0 0 6px 6px;
 }
 
 .hand-group-ready {
@@ -580,6 +581,26 @@ button.card-selected:hover:not(:disabled) {
 
 .hand-group-value {
   letter-spacing: 0;
+}
+
+/* Small coloured text on a pale dock is easy to miss, so each verdict is a filled badge. */
+.hand-group-value .value-ready,
+.hand-group-value .value-discard {
+  padding: 0.05rem 0.45rem;
+  border-radius: 999px;
+  font-weight: 800;
+  line-height: 1.5;
+  box-shadow: 0 1px 3px rgba(20, 50, 35, 0.35);
+}
+
+.hand-group-value .value-ready {
+  background: var(--leaf);
+  color: #fff;
+}
+
+.hand-group-value .value-discard {
+  background: var(--amber);
+  color: #4a2c00;
 }
 
 .hand-group-play {
