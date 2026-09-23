@@ -52,10 +52,11 @@ export function CardView({ card, selected = false, badge = null, represents = nu
   );
 }
 
-export function CardBack({ small = false, color = "blue" }: { small?: boolean; color?: "blue" | "red" }) {
+/** A face-down card. The design is whichever back the player chose, carried by a CSS variable. */
+export function CardBack({ small = false }: { small?: boolean }) {
   return (
     <span className={`card${small ? " card-small" : ""}`} role="img" aria-label={t("card.back")}>
-      <img src={`/cards/back-${color}.png`} alt="" draggable={false} />
+      <span className="card-face-back" />
     </span>
   );
 }

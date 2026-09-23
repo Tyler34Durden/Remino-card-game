@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 219 304" width="219" height="304" role="img" aria-label="Card back">
+  <defs>
+    <pattern id="g-mesh" width="7" height="7" patternUnits="userSpaceOnUse">
+      <path d="M0 0H7M0 0V7" stroke="#cfe0e8" stroke-width="1.6" fill="none"/>
+    </pattern>
+    <linearGradient id="g-pale" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#b9d3de"/>
+    </linearGradient>
+
+    <!-- One quadrant of the ornament. It is mirrored four ways, which is what makes the back symmetrical. -->
+    <g id="g-quarter" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 132C18 92 33 62 62 47" stroke="#f3a53a" stroke-width="8"/>
+      <path d="M33 134C31 98 45 72 70 60" stroke="url(#g-pale)" stroke-width="4.5"/>
+      <path d="M70 60C84 54 96 60 99 71C101 80 94 87 87 84C81 81 81 74 86 72" stroke="url(#g-pale)" stroke-width="4.5"/>
+      <path d="M62 47C78 40 92 45 97 55" stroke="#f3a53a" stroke-width="8"/>
+      <path d="M46 104C44 82 55 68 74 63" stroke="#f3a53a" stroke-width="3"/>
+      <path d="M96 96C80 96 70 106 70 120" stroke="url(#g-pale)" stroke-width="5"/>
+      <path d="M96 118C86 118 80 124 80 132" stroke="#f3a53a" stroke-width="3"/>
+      <!-- Corner leaf -->
+      <path d="M30 34C44 26 60 30 66 44C52 38 40 40 34 50Z" fill="url(#g-pale)" stroke="none"/>
+      <path d="M31 36C40 46 42 58 38 68" stroke="url(#g-pale)" stroke-width="2.4"/>
+      <circle cx="26" cy="60" r="3.4" fill="#f3a53a" stroke="none"/>
+      <circle cx="24" cy="74" r="2.4" fill="#f3a53a" stroke="none"/>
+      <circle cx="56" cy="88" r="3" fill="url(#g-pale)" stroke="none"/>
+      <!-- Side motif: it meets its mirror across the middle to close into one shape -->
+      <path d="M16 152C16 137 26 127 41 127C52 127 59 134 60 144" stroke="#f3a53a" stroke-width="7"/>
+      <path d="M31 152C31 142 38 136 48 138" stroke="url(#g-pale)" stroke-width="3.2"/>
+      <path d="M70 152C70 138 80 130 94 131" stroke="url(#g-pale)" stroke-width="4.5"/>
+      <path d="M85 152C85 145 91 140 99 141" stroke="#f3a53a" stroke-width="3"/>
+      <circle cx="46" cy="116" r="3" fill="url(#g-pale)" stroke="none"/>
+      <!-- Palmette petal that meets its mirror on the centre line -->
+      <path d="M109 62C97 62 90 54 92 43C98 49 104 50 109 48Z" fill="#f3a53a" stroke="none"/>
+      <path d="M109 92C99 92 92 86 92 78C98 82 104 83 109 82Z" fill="url(#g-pale)" stroke="none"/>
+    </g>
+  </defs>
+
+  <rect width="219" height="304" rx="12" fill="#14181b"/>
+
+  <!-- Frame -->
+  <rect x="9.5" y="9.5" width="200" height="285" rx="6" fill="none" stroke="#f3a53a" stroke-width="3"/>
+  <rect x="16.5" y="16.5" width="186" height="271" rx="3" fill="none" stroke="#f3a53a" stroke-width="1.4"/>
+  <rect x="13" y="13" width="193" height="278" rx="4.5" fill="none" stroke="#cfe0e8" stroke-width="2.6" stroke-dasharray="0 7" stroke-linecap="round"/>
+
+  <g>
+    <use href="#g-quarter"/>
+    <use href="#g-quarter" transform="translate(219,0) scale(-1,1)"/>
+    <use href="#g-quarter" transform="translate(0,304) scale(1,-1)"/>
+    <use href="#g-quarter" transform="translate(219,304) scale(-1,-1)"/>
+  </g>
+
+  <!-- Eight-point star medallion -->
+  <g transform="translate(109.5 152)">
+    <g fill="none" stroke="#f3a53a" stroke-width="7" stroke-linejoin="round">
+      <path d="M-28-28H28V28H-28Z" transform="rotate(22.5)"/>
+      <path d="M-28-28H28V28H-28Z" transform="rotate(-22.5)"/>
+    </g>
+    <g fill="#14181b" stroke="none">
+      <path d="M-24-24H24V24H-24Z" transform="rotate(22.5)"/>
+      <path d="M-24-24H24V24H-24Z" transform="rotate(-22.5)"/>
+    </g>
+    <path d="M-23-23H23V23H-23Z" fill="url(#g-mesh)"/>
+    <circle cx="0" cy="-42" r="3.6" fill="url(#g-pale)"/>
+    <circle cx="0" cy="42" r="3.6" fill="url(#g-pale)"/>
+  </g>
+</svg>

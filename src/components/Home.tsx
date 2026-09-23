@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { FormEvent } from "react";
+import type { FormEvent, ReactNode } from "react";
 import type { RoomSettings } from "../../shared/types.ts";
 import { DEFAULT_SETTINGS } from "../../shared/types.ts";
 import { t } from "../i18n.ts";
@@ -17,7 +17,7 @@ function savedName(): string {
   }
 }
 
-export function Home({ game, onRules }: { game: Game; onRules: () => void }) {
+export function Home({ game, onRules, backPicker }: { game: Game; onRules: () => void; backPicker?: ReactNode }) {
   const [name, setName] = useState(savedName);
   const [creating, setCreating] = useState(false);
   const [settings, setSettings] = useState<RoomSettings>(DEFAULT_SETTINGS);
@@ -100,6 +100,7 @@ export function Home({ game, onRules }: { game: Game; onRules: () => void }) {
             <button type="button" className="button button-quiet" onClick={onRules}>
               {t("home.rules")}
             </button>
+            {backPicker}
           </div>
         )}
       </section>

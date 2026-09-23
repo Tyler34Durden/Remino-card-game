@@ -1,0 +1,68 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 219 304" width="219" height="304" role="img" aria-label="Card back">
+  <defs>
+    <linearGradient id="r-pale" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#bcd6e4"/>
+    </linearGradient>
+    <linearGradient id="r-rose" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4a0b4"/>
+      <stop offset="1" stop-color="#e0748f"/>
+    </linearGradient>
+
+    <!-- One petal of the centre rosette, spun around the middle. -->
+    <path id="r-petal" d="M0-30C7-24 9-14 0-2C-9-14 -7-24 0-30Z"/>
+
+    <g id="r-quarter" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <!-- The long ribbon that sweeps across the card -->
+      <path d="M22 122C26 84 48 56 84 44" stroke="url(#r-rose)" stroke-width="9"/>
+      <path d="M36 134C40 100 58 76 88 64" stroke="url(#r-pale)" stroke-width="5"/>
+      <!-- Curling tendrils -->
+      <path d="M52 108C48 92 56 80 70 78C80 77 86 84 83 91C81 97 74 97 72 92" stroke="url(#r-pale)" stroke-width="3.6"/>
+      <path d="M30 60C42 52 56 54 62 64C66 71 62 79 55 78C49 77 47 71 51 68" stroke="url(#r-rose)" stroke-width="3.6"/>
+      <!-- Leaves -->
+      <path d="M62 34C76 28 90 33 95 46C82 40 70 42 65 51Z" fill="url(#r-pale)" stroke="none"/>
+      <path d="M24 90C36 86 48 92 51 104C39 98 30 99 25 106Z" fill="url(#r-rose)" stroke="none"/>
+      <path d="M86 108C96 102 108 106 110 117C100 112 92 113 88 119Z" fill="url(#r-pale)" stroke="none"/>
+      <!-- Side motif: it meets its mirror across the middle to close into one shape -->
+      <path d="M22 152C22 136 32 126 48 127C59 128 65 135 65 145" stroke="url(#r-rose)" stroke-width="7"/>
+      <path d="M36 152C36 143 43 138 52 140" stroke="url(#r-pale)" stroke-width="3"/>
+      <path d="M78 152C78 140 86 134 97 136" stroke="url(#r-pale)" stroke-width="4"/>
+      <path d="M96 152C96 146 100 142 106 143" stroke="url(#r-rose)" stroke-width="2.6"/>
+      <circle cx="74" cy="60" r="3.4" fill="url(#r-rose)" stroke="none"/>
+      <circle cx="44" cy="76" r="2.6" fill="url(#r-pale)" stroke="none"/>
+      <circle cx="96" cy="86" r="2.6" fill="url(#r-rose)" stroke="none"/>
+    </g>
+  </defs>
+
+  <rect width="219" height="304" rx="12" fill="#14181b"/>
+
+  <!-- Dashed square frame -->
+  <rect x="13" y="13" width="193" height="278" rx="3" fill="none" stroke="url(#r-rose)" stroke-width="5" stroke-dasharray="5 5"/>
+  <rect x="20.5" y="20.5" width="178" height="263" rx="2" fill="none" stroke="url(#r-pale)" stroke-width="1.6"/>
+
+  <g>
+    <use href="#r-quarter"/>
+    <use href="#r-quarter" transform="translate(219,0) scale(-1,1)"/>
+    <use href="#r-quarter" transform="translate(0,304) scale(1,-1)"/>
+    <use href="#r-quarter" transform="translate(219,304) scale(-1,-1)"/>
+  </g>
+
+  <!-- Rosette medallion inside a broken ring -->
+  <g transform="translate(109.5 152)">
+    <circle cx="0" cy="0" r="44" fill="none" stroke="url(#r-rose)" stroke-width="5"/>
+    <circle cx="0" cy="0" r="44" fill="none" stroke="url(#r-pale)" stroke-width="5" stroke-dasharray="46 92" stroke-dashoffset="23" stroke-linecap="round"/>
+    <circle cx="0" cy="0" r="34" fill="#14181b"/>
+    <g fill="url(#r-pale)">
+      <use href="#r-petal"/>
+      <use href="#r-petal" transform="rotate(45)"/>
+      <use href="#r-petal" transform="rotate(90)"/>
+      <use href="#r-petal" transform="rotate(135)"/>
+      <use href="#r-petal" transform="rotate(180)"/>
+      <use href="#r-petal" transform="rotate(225)"/>
+      <use href="#r-petal" transform="rotate(270)"/>
+      <use href="#r-petal" transform="rotate(315)"/>
+    </g>
+    <circle cx="0" cy="0" r="9" fill="url(#r-rose)"/>
+    <circle cx="0" cy="0" r="3.4" fill="#14181b"/>
+  </g>
+</svg>

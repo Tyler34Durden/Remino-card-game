@@ -1,4 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
+import { cardBackFile, DEFAULT_CARD_BACK } from "./cardBacks.ts";
+import type { CardBackId } from "./cardBacks.ts";
 
 const PREFS_KEY = "romino-prefs";
 
@@ -8,6 +10,7 @@ export interface Prefs {
   sound: boolean;
   reducedMotion: boolean;
   theme: ThemeChoice;
+  cardBack: CardBackId;
 }
 
 /** The preferences that are a plain on or off. */
@@ -22,7 +25,7 @@ function systemPrefersReducedMotion(): boolean {
 }
 
 function loadPrefs(): Prefs {
-  const fallback: Prefs = { sound: true, reducedMotion: systemPrefersReducedMotion(), theme: "system" };
+  const fallback: Prefs = { sound: true, reducedMotion: systemPrefersReducedMotion(), theme: "system", cardBack: DEFAULT_CARD_BACK };
   try {
     const raw = localStorage.getItem(PREFS_KEY);
     return raw ? { ...fallback, ...(JSON.parse(raw) as Partial<Prefs>) } : fallback;
@@ -31,7 +34,7 @@ function loadPrefs(): Prefs {
   }
 }
 
-export function usePrefs(): { prefs: Prefs; dark: boolean; toggle: (key: BooleanPref) => void; toggleTheme: () => void } {
+export function usePrefs(): { prefs: Prefs; dark: boolean; toggle: (key: BooleanPref) => void; toggleTheme: () => void; setCardBack: (id: CardBackId) => void } {
   const [prefs, setPrefs] = useState<Prefs>(loadPrefs);
   const [systemDark, setSystemDark] = useState(systemPrefersDark);
 
@@ -52,6 +55,11 @@ export function usePrefs(): { prefs: Prefs; dark: boolean; toggle: (key: Boolean
     document.documentElement.style.colorScheme = dark ? "dark" : "light";
   }, [dark]);
 
+  // Every face-down card reads this one variable, so no component needs to know the choice.
+  useEffect(() => {
+    document.documentElement.style.setProperty("--card-back", `url("${cardBackFile(prefs.cardBack)}")`);
+  }, [prefs.cardBack]);
+
   useEffect(() => {
     document.documentElement.dataset.reducedMotion = String(prefs.reducedMotion);
     try {
@@ -63,7 +71,8 @@ export function usePrefs(): { prefs: Prefs; dark: boolean; toggle: (key: Boolean
 
   const toggle = useCallback((key: BooleanPref) => setPrefs((p) => ({ ...p, [key]: !p[key] })), []);
   const toggleTheme = useCallback(() => setPrefs((p) => ({ ...p, theme: (p.theme === "system" ? systemPrefersDark() : p.theme === "dark") ? "light" : "dark" })), []);
-  return { prefs, dark, toggle, toggleTheme };
+  const setCardBack = useCallback((id: CardBackId) => setPrefs((p) => ({ ...p, cardBack: id })), []);
+  return { prefs, dark, toggle, toggleTheme, setCardBack };
 }
 
 let audio: AudioContext | null = null;

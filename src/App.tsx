@@ -4,6 +4,7 @@ import type { Language } from "./i18n.ts";
 import { serverText } from "./serverText.ts";
 import { useSoloGame } from "./soloGame.ts";
 import { usePrefs } from "./prefs.ts";
+import { CardBackPicker } from "./components/CardBackPicker.tsx";
 import { Home } from "./components/Home.tsx";
 import { Lobby } from "./components/Lobby.tsx";
 import { Results } from "./components/Results.tsx";
@@ -14,7 +15,7 @@ import { ShuffleRitual } from "./components/ShuffleRitual.tsx";
 
 export function App() {
   const game = useSoloGame();
-  const { prefs, dark, toggle, toggleTheme } = usePrefs();
+  const { prefs, dark, toggle, toggleTheme, setCardBack } = usePrefs();
   const [language, setLanguageState] = useState<Language>(initialLanguage);
   // Every t() call reads the module-level language, so it must be set before the children render.
   setLanguage(language);
@@ -86,7 +87,7 @@ export function App() {
           {themeSwitch}
           {languageSwitch}
         </div>
-        <Home game={game} onRules={() => setShowRules(true)} />
+        <Home game={game} onRules={() => setShowRules(true)} backPicker={<CardBackPicker value={prefs.cardBack} onChange={setCardBack} />} />
         {rules}
       </>
     );
@@ -136,6 +137,7 @@ export function App() {
           <button type="button" className="button button-small" onClick={leave}>
             {t("prefs.leave")}
           </button>
+          <CardBackPicker value={prefs.cardBack} onChange={setCardBack} />
         </div>
       </header>
 

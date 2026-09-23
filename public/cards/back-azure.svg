@@ -1,0 +1,59 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 219 304" width="219" height="304" role="img" aria-label="Card back">
+  <defs>
+    <pattern id="a-mesh" width="7" height="7" patternUnits="userSpaceOnUse">
+      <path d="M0 0H7M0 0V7" stroke="#4ea8e0" stroke-width="1.6" fill="none"/>
+    </pattern>
+    <linearGradient id="a-pale" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff"/>
+      <stop offset="1" stop-color="#bcd9ea"/>
+    </linearGradient>
+    <!-- The scalloped edge: one bump, repeated along the frame. -->
+    <pattern id="a-scallop" width="11" height="11" patternUnits="userSpaceOnUse">
+      <path d="M0 11A5.5 5.5 0 0 1 11 11Z" fill="#2f8fd0"/>
+    </pattern>
+
+    <g id="a-quarter" fill="none" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M32 128C28 96 40 70 64 56" stroke="#2f8fd0" stroke-width="8"/>
+      <path d="M44 130C41 102 52 80 72 68" stroke="url(#a-pale)" stroke-width="4"/>
+      <path d="M72 68C86 61 98 67 100 78C102 88 94 94 87 90C81 87 82 79 88 78" stroke="url(#a-pale)" stroke-width="4"/>
+      <path d="M64 56C80 48 94 53 99 63" stroke="#2f8fd0" stroke-width="8"/>
+      <!-- Corner arrowhead, a nod to the reference deck -->
+      <path d="M34 40L62 48L48 56L52 74L34 52Z" fill="url(#a-pale)" stroke="none"/>
+      <path d="M38 76C50 72 58 76 62 84" stroke="#2f8fd0" stroke-width="3.4"/>
+      <circle cx="30" cy="66" r="3.6" fill="#2f8fd0" stroke="none"/>
+      <circle cx="62" cy="96" r="2.8" fill="url(#a-pale)" stroke="none"/>
+      <!-- Side motif: it meets its mirror across the middle to close into one shape -->
+      <path d="M18 152C18 136 28 126 44 126C55 126 62 133 63 143" stroke="#2f8fd0" stroke-width="7"/>
+      <path d="M33 152C33 142 40 137 50 139" stroke="url(#a-pale)" stroke-width="3"/>
+      <path d="M76 152C76 140 84 133 96 134" stroke="url(#a-pale)" stroke-width="4"/>
+      <circle cx="40" cy="112" r="3.2" fill="url(#a-pale)" stroke="none"/>
+      <!-- Leaf spray reaching the centre line -->
+      <path d="M109 74C95 74 86 66 86 54C94 60 102 62 109 60Z" fill="url(#a-pale)" stroke="none"/>
+      <path d="M109 104C98 104 91 98 91 90C98 95 104 96 109 95Z" fill="#2f8fd0" stroke="none"/>
+      <path d="M60 110C60 124 68 132 80 134" stroke="url(#a-pale)" stroke-width="4.5"/>
+    </g>
+  </defs>
+
+  <rect width="219" height="304" rx="12" fill="#14181b"/>
+
+  <!-- Scalloped frame: the pattern tiles the whole card, and the ring is cut out of it. -->
+  <path d="M10 10H209V294H10Z M21 21H198V283H21Z" fill="url(#a-scallop)" fill-rule="evenodd"/>
+  <rect x="10.5" y="10.5" width="198" height="283" rx="5" fill="none" stroke="#2f8fd0" stroke-width="3"/>
+  <rect x="17.5" y="17.5" width="184" height="269" rx="3" fill="none" stroke="#2f8fd0" stroke-width="1.4"/>
+  <rect x="14" y="14" width="191" height="276" rx="4" fill="none" stroke="url(#a-pale)" stroke-width="2.4" stroke-dasharray="0 6" stroke-linecap="round"/>
+
+  <g>
+    <use href="#a-quarter"/>
+    <use href="#a-quarter" transform="translate(219,0) scale(-1,1)"/>
+    <use href="#a-quarter" transform="translate(0,304) scale(1,-1)"/>
+    <use href="#a-quarter" transform="translate(219,304) scale(-1,-1)"/>
+  </g>
+
+  <!-- Diamond medallion -->
+  <g transform="translate(109.5 152)">
+    <path d="M0-46L46 0L0 46L-46 0Z" fill="none" stroke="#2f8fd0" stroke-width="7"/>
+    <path d="M0-34L34 0L0 34L-34 0Z" fill="none" stroke="url(#a-pale)" stroke-width="2.4"/>
+    <circle cx="0" cy="0" r="21" fill="url(#a-mesh)"/>
+    <circle cx="0" cy="0" r="21" fill="none" stroke="#2f8fd0" stroke-width="2"/>
+  </g>
+</svg>

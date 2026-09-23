@@ -53,7 +53,7 @@ function SeatChip({ seat, room, handValue }: { seat: PublicSeat; room: PublicRoo
       <div className="seat-chip-head">
         <span className={`seat-avatar seat-avatar-${seat.seat % 6}`} aria-hidden="true" />
         <span className="seat-card-badge" aria-label={t("table.cards", { count: seat.cardCount })}>
-          <span aria-hidden="true"><CardBack small color={seat.kind === "bot" ? "red" : "blue"} /></span>
+          <span aria-hidden="true"><CardBack small /></span>
           <strong>{seat.cardCount}</strong>
         </span>
       </div>
