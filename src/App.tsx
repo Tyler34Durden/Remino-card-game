@@ -37,7 +37,7 @@ export function App() {
   useEffect(() => {
     document.documentElement.dir = directionOf(language);
     document.documentElement.lang = language;
-    document.title = language === "ar" ? "رومينو — لعبة ورق عبر الإنترنت" : "Romino — Online Card Game";
+    document.title = language === "ar" ? "ريمينو — لعبة ورق عبر الإنترنت" : "Remino — Online Card Game";
   }, [language]);
 
   const themeSwitch = (

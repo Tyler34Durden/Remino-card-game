@@ -1,8 +1,8 @@
-# Romino — Plan for a Simpler Interface
+# Remino — Plan for a Simpler Interface
 
 ## 1. Why
 
-An experienced Romino player tried the game and said it was complicated. She was asked whether she meant the rules, and said no. She knows Romino. What defeated her was the app.
+An experienced Remino player tried the game and said it was complicated. She was asked whether she meant the rules, and said no. She knows Remino. What defeated her was the app.
 
 This plan is only about the interface. Every rule stays exactly as it is.
 

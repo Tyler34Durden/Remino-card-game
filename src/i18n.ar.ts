@@ -3,7 +3,7 @@ import type { MessageKey } from "./i18n.ts";
 // Arabic interface text. Counts are written as "label: number" wherever possible,
 // because Arabic plural forms change with the number and a fixed noun would often be wrong.
 export const ar: Record<MessageKey, string> = {
-  "app.title": "رومينو",
+  "app.title": "ريمينو",
   "app.tagline": "لعبة الورق الليبية، مع الأصدقاء عبر الإنترنت.",
   "app.taglineSolo": "لعبة الورق الليبية. العب ضد زبائن المقهى.",
   "app.connecting": "جارٍ الاتصال بالخادم…",
@@ -221,7 +221,7 @@ export const ar: Record<MessageKey, string> = {
   "closed.title": "أُغلقت الغرفة",
   "closed.ok": "العودة إلى البداية",
 
-  "rules.title": "طريقة لعب رومينو",
+  "rules.title": "طريقة لعب ريمينو",
   "rules.close": "إغلاق",
   "rules.roomNote": "هذه القواعد مطابقة لإعدادات غرفتك الحالية.",
 

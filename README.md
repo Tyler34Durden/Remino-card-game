@@ -1,6 +1,6 @@
-# Romino Online
+# Remino Online
 
-An online version of the Libyan-style Romino card game for desktop and mobile browsers. Players join private rooms with an invite code, and bots fill every empty seat. The server owns the deck, validates every move, and only ever sends a player their own hand.
+An online version of the Libyan-style Remino card game for desktop and mobile browsers. Players join private rooms with an invite code, and bots fill every empty seat. The server owns the deck, validates every move, and only ever sends a player their own hand.
 
 The full product specification is in [romino-online-game-plan.md](romino-online-game-plan.md).
 

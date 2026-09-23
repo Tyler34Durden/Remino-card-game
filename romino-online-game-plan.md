@@ -1,8 +1,8 @@
-# Romino Online — Product and Development Plan
+# Remino Online — Product and Development Plan
 
 ## 1. Project goal
 
-Build a polished online version of the Libyan-style Romino card game for desktop and mobile browsers. Players join private rooms, and empty seats are filled by computer-controlled players.
+Build a polished online version of the Libyan-style Remino card game for desktop and mobile browsers. Players join private rooms, and empty seats are filled by computer-controlled players.
 
 The game server is authoritative: it owns the deck, validates every move, protects private hands, controls bots, and calculates results.
 
@@ -519,4 +519,3 @@ The first release is complete when:
 - Late joining, disconnect takeover, and seat reclamation work.
 - The interface works on typical desktop and mobile browsers.
 - The applicable rules can be read inside the game.
-

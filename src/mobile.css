@@ -24,6 +24,15 @@
     font-size: 16px;
   }
 
+  /* Keep the match anchored when iOS tries to rubber-band the page. */
+  html:has(.game),
+  body:has(.game),
+  body:has(.game) #root {
+    height: 100%;
+    overflow: hidden;
+    overscroll-behavior: none;
+  }
+
   button,
   .card {
     touch-action: manipulation;
@@ -39,8 +48,13 @@
 
   /* ---------- Top bar: one slim row with a menu ---------- */
 
-  .game {
-    min-height: 100dvh;
+  .game.game {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100dvh;
+    overflow: hidden;
+    overscroll-behavior: none;
   }
 
   .topbar {

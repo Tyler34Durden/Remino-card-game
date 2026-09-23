@@ -1,6 +1,6 @@
-# Romino — solo branch
+# Remino — solo branch
 
-This branch plays Romino on your own against the café regulars. It has no server and no network.
+This branch plays Remino on your own against the café regulars. It has no server and no network.
 
 ```bash
 npm install

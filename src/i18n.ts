@@ -3,7 +3,7 @@
 import { ar } from "./i18n.ar.ts";
 
 const en = {
-  "app.title": "Romino",
+  "app.title": "Remino",
   "app.tagline": "The Libyan card game, online with friends.",
   "app.taglineSolo": "The Libyan card game. Play the café regulars.",
   "app.connecting": "Connecting to the server…",
@@ -222,7 +222,7 @@ const en = {
   "closed.title": "Room closed",
   "closed.ok": "Back to home",
 
-  "rules.title": "How to play Romino",
+  "rules.title": "How to play Remino",
   "rules.close": "Close",
   "rules.roomNote": "These rules reflect the settings of your current room.",
 

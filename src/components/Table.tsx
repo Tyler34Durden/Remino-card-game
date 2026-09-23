@@ -620,7 +620,7 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
                   </button>
                 )}
                 {selected.length > 0 && (
-                  <button type="button" className="button button-small button-quiet" onClick={() => setSelected([])}>
+                  <button type="button" className="button button-small action-clear" onClick={() => setSelected([])}>
                     {t("action.clear")}
                   </button>
                 )}
