@@ -1,29 +1,22 @@
 """
 Builds the card faces from the new artwork in "Component 5".
 
-Two things are added to the supplied art:
+The folder holds A and 2 to 10. J, Q and K keep their painted illustrations and
+this script leaves them alone.
 
-* A small suit glyph under the corner rank. The fanned hand on a phone shows
-  only the left edge of a card, and the supplied faces carry the suit in the
-  middle only, so K of spades and K of clubs would look the same there.
-* J, Q and K, which the folder does not contain. They are drawn from the suit's
-  own Ace, keeping its centre pip and replacing only the corner rank, so they
-  stay in the same style as the rest of the deck.
+One thing is added to the supplied art: a small suit glyph under the corner
+rank. The fanned hand on a phone shows only the left edge of a card, and the
+supplied faces carry the suit in the middle only, so K of spades and K of clubs
+would look the same there.
 """
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image
 import pathlib
 
 SRC = pathlib.Path("Component 5")
 OUT = pathlib.Path("public/cards")
 SUITS = {"Clubs": "clubs", "Diamonds": "diamonds", "Hearts": "hearts", "Spades": "spades"}
 NUMBERS = {"Ace": "A", "2": "2", "3": "3", "4": "4", "5": "5", "6": "6", "7": "7", "8": "8", "9": "9", "10": "10"}
-COURT = ("J", "Q", "K")
 
-BLACK = (33, 28, 29, 255)
-RED = (188, 30, 36, 255)
-FONT = ImageFont.truetype("C:/Windows/Fonts/GOTHIC.TTF", 62)  # Century Gothic, the face's own font
-RANK_LEFT, BASELINE = 26, 66     # measured from the supplied cards
-CLEAR_BOX = (18, 12, 96, 78)     # the corner rank, well clear of the centre pip
 PIP_AT, PIP_H = (24, 70), 20     # the corner suit glyph, in the gap left of the centre pip
 
 
@@ -48,21 +41,10 @@ def corner_pip(ace):
 
 made = 0
 for folder, suit in SUITS.items():
-    ace = Image.open(SRC / folder / "Ace.png").convert("RGBA")
-    pip = corner_pip(ace)
-    colour = RED if suit in ("hearts", "diamonds") else BLACK
+    pip = corner_pip(Image.open(SRC / folder / "Ace.png").convert("RGBA"))
 
     for source, rank in NUMBERS.items():
         card = Image.open(SRC / folder / f"{source}.png").convert("RGBA")
-        card.alpha_composite(pip, PIP_AT)
-        card.save(OUT / f"{suit}-{rank}.png")
-        made += 1
-
-    for rank in COURT:
-        card = ace.copy()
-        draw = ImageDraw.Draw(card)
-        draw.rectangle(CLEAR_BOX, fill=(255, 255, 255, 255))
-        draw.text((RANK_LEFT, BASELINE), rank, font=FONT, fill=colour, anchor="ls")
         card.alpha_composite(pip, PIP_AT)
         card.save(OUT / f"{suit}-{rank}.png")
         made += 1
