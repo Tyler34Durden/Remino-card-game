@@ -101,11 +101,16 @@ export function Home({ game, onRules, backPicker, backgroundPicker, avatarPicker
             <button type="button" className="button button-quiet" onClick={onRules}>
               {t("home.rules")}
             </button>
+          </div>
+        )}
+        <details className="home-style">
+          <summary>{t("home.style")}</summary>
+          <div className="home-style-options">
             {avatarPicker}
             {backgroundPicker}
             {backPicker}
           </div>
-        )}
+        </details>
       </section>
     </main>
   );

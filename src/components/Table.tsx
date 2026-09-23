@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { Card, JokerAssignments, Play, PublicRoomState, PublicSeat, TableMeld } from "../../shared/types.ts";
 import { cardLabel, handPenalty, isJoker, refLabel } from "../../engine/cards.ts";
 import { bestMeldGrouping } from "../../engine/bot.ts";
@@ -12,10 +12,16 @@ import { ltr, t } from "../i18n.ts";
 import { planHand, valueOf } from "../meldPlanner.ts";
 import { localName, serverText } from "../serverText.ts";
 import type { Game } from "../net.ts";
-import { playSound } from "../prefs.ts";
+import { playReactionSound, playSound } from "../prefs.ts";
 import type { Prefs } from "../prefs.ts";
 import { CardBack, CardView, cardName } from "./CardView.tsx";
 import { Hand } from "./Hand.tsx";
+import { ReactionIcon, ReactionMenuIcon, REACTION_DURATION_MS } from "./ReactionIcon.tsx";
+import type { ReactionKind } from "./ReactionIcon.tsx";
+import { REACTIONS, ReactionTray } from "./ReactionTray.tsx";
+
+type ActiveReaction = { id: number; seat: number; kind: ReactionKind; source: "player" | "bot" };
+const BOT_REACTION_COOLDOWN_MS = 24000;
 
 /** Readings that differ only in which joker sits where are the same choice for the player. */
 function distinctReadings(readings: MeldInterpretation[]): MeldInterpretation[] {
@@ -44,7 +50,7 @@ interface JokerChoice {
   onPick: (jokerAs: JokerAssignments) => void;
 }
 
-function SeatChip({ seat, room, handValue }: { seat: PublicSeat; room: PublicRoomState; handValue?: number }) {
+function SeatChip({ seat, room, handValue, reaction }: { seat: PublicSeat; room: PublicRoomState; handValue?: number; reaction?: ActiveReaction }) {
   const active = room.activeSeat === seat.seat;
   const isMe = seat.seat === room.viewer.seat;
   const name = localName(seat.name);
@@ -52,6 +58,11 @@ function SeatChip({ seat, room, handValue }: { seat: PublicSeat; room: PublicRoo
     <li className={`seat-chip${active ? " seat-active" : ""}${isMe ? " seat-me" : ""}${seat.kind === "bot" ? " seat-bot" : ""}`} aria-current={active ? "true" : undefined}>
       <div className="seat-chip-head">
         <span className={`seat-avatar avatar-portrait avatar-portrait-${seat.avatarId}`} aria-hidden="true" />
+        {reaction && (
+          <span key={reaction.id} className={`seat-reaction seat-reaction-${reaction.kind}`} data-reaction-id={reaction.id} role="img" aria-label={t(REACTIONS.find((item) => item.kind === reaction.kind)!.label)}>
+            <ReactionIcon kind={reaction.kind} />
+          </span>
+        )}
         <span className="seat-card-badge" aria-label={t("table.cards", { count: seat.cardCount })}>
           <span aria-hidden="true"><CardBack small /></span>
           <strong>{seat.cardCount}</strong>
@@ -104,7 +115,7 @@ function SelectionValue({ cards }: { cards: readonly Card[] }) {
   );
 }
 
-export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState; prefs: Prefs }) {
+export function Table({ game, room, prefs, tipsOpen, onHideTips, reactionsBlocked = false }: { game: Game; room: PublicRoomState; prefs: Prefs; tipsOpen: boolean; onHideTips: () => void; reactionsBlocked?: boolean }) {
   const [selected, setSelected] = useState<string[]>([]);
   const [taking, setTaking] = useState(false);
   const [staged, setStaged] = useState<Play[]>([]);
@@ -124,8 +135,16 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
   // Adding a card to a set that holds a joker can mean two things, so the player is asked which one.
   const [swapChoice, setSwapChoice] = useState<{ meld: TableMeld; jokerId: string; cardId: string; label: string } | null>(null);
   const [busy, setBusy] = useState(false);
-  // Keep the table uncluttered on every screen; the help button reveals the longer hints.
-  const [tipsOpen, setTipsOpen] = useState(false);
+  const [reactionsOpen, setReactionsOpen] = useState(false);
+  const [reaction, setReaction] = useState<ActiveReaction | null>(null);
+  const reactionRef = useRef<ActiveReaction | null>(null);
+  const reactionId = useRef(0);
+  const reactionTimer = useRef<number | null>(null);
+  const reactionSound = useRef<(() => void) | null>(null);
+  const reactionTrigger = useRef<HTMLButtonElement>(null);
+  const lastBotReaction = useRef(-Infinity);
+  const botsBlockedRef = useRef(false);
+  const lastMeldCount = useRef(room.melds.length);
   const seatsRef = useRef<HTMLUListElement>(null);
 
   const mySeat = room.viewer.seat;
@@ -134,6 +153,88 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
   const myTurn = playing && mySeat !== null && room.activeSeat === mySeat;
   const opened = me?.opened ?? false;
   const activeName = room.activeSeat !== null ? localName(room.seats[room.activeSeat].name) : "";
+  const botSeats = room.seats.filter((seat) => seat.kind === "bot" || seat.botControlled).map((seat) => seat.seat);
+  const botSeatsKey = botSeats.join(",");
+
+  const botsBlocked = !playing || !prefs.botReactions || reactionsOpen || tipsOpen || reactionsBlocked || busy || !!visibleWarning || !!jokerChoice || !!swapChoice;
+  useEffect(() => { botsBlockedRef.current = botsBlocked; }, [botsBlocked]);
+
+  const clearReaction = useCallback(() => {
+    if (reactionTimer.current !== null) window.clearTimeout(reactionTimer.current);
+    reactionTimer.current = null;
+    reactionSound.current?.();
+    reactionSound.current = null;
+    reactionRef.current = null;
+    setReaction(null);
+  }, []);
+
+  const showReaction = useCallback((seat: number, kind: ReactionKind, source: ActiveReaction["source"]) => {
+    const now = performance.now();
+    // Check again at dispatch: a player may have reacted since a bot's timer was scheduled.
+    if (source === "bot" && (botsBlockedRef.current || reactionRef.current || now - lastBotReaction.current < BOT_REACTION_COOLDOWN_MS)) return;
+    clearReaction();
+    const next = { id: ++reactionId.current, seat, kind, source };
+    reactionRef.current = next;
+    setReaction(next);
+    if (source === "bot") lastBotReaction.current = now;
+    reactionTimer.current = window.setTimeout(clearReaction, REACTION_DURATION_MS);
+  }, [clearReaction]);
+
+  const closeReactions = useCallback((restoreFocus = false) => {
+    setReactionsOpen(false);
+    if (restoreFocus) reactionTrigger.current?.focus({ preventScroll: true });
+  }, []);
+
+  useEffect(() => {
+    if (tipsOpen || reactionsBlocked || visibleWarning || jokerChoice || swapChoice) {
+      setReactionsOpen(false);
+      clearReaction();
+    }
+  }, [tipsOpen, reactionsBlocked, visibleWarning, jokerChoice, swapChoice, clearReaction]);
+
+  useEffect(() => {
+    if (!prefs.sound) { reactionSound.current?.(); reactionSound.current = null; }
+    if (!prefs.botReactions && reactionRef.current?.source === "bot") clearReaction();
+  }, [prefs.sound, prefs.botReactions, clearReaction]);
+
+  useEffect(() => () => {
+    if (reactionTimer.current !== null) window.clearTimeout(reactionTimer.current);
+    reactionSound.current?.();
+  }, []);
+
+  useEffect(() => {
+    setReactionsOpen(false);
+    clearReaction();
+    lastBotReaction.current = -Infinity;
+  }, [room.code, room.roundNumber, room.status, clearReaction]);
+
+  // Solo café regulars react only occasionally; their bubbles never enter match state or the log.
+  useEffect(() => {
+    if (botsBlocked || reaction || botSeats.length === 0) return;
+    const timer = window.setTimeout(() => {
+      const seat = botSeats[Math.floor(Math.random() * botSeats.length)];
+      const kind: ReactionKind = Math.random() < 0.5 ? "tea" : "coffee";
+      showReaction(seat, kind, "bot");
+    }, 24000 + Math.random() * 16000);
+    return () => window.clearTimeout(timer);
+  }, [room.code, room.roundNumber, botsBlocked, botSeatsKey, reaction, showReaction]);
+
+  useEffect(() => {
+    const playedNewMeld = room.melds.length > lastMeldCount.current;
+    lastMeldCount.current = room.melds.length;
+    if (!playedNewMeld || !myTurn || botsBlocked || reaction || botSeats.length === 0 || Math.random() >= 0.3) return;
+    const timer = window.setTimeout(() => {
+      showReaction(botSeats[Math.floor(Math.random() * botSeats.length)], "bravo", "bot");
+    }, 550);
+    return () => window.clearTimeout(timer);
+  }, [room.melds.length, room.roundNumber, myTurn, botsBlocked, botSeatsKey, reaction, showReaction]);
+
+  const chooseReaction = (kind: ReactionKind) => {
+    if (mySeat === null) return;
+    closeReactions(true);
+    showReaction(mySeat, kind, "player");
+    reactionSound.current = playReactionSound(kind, prefs.sound);
+  };
 
   // Leave staging whenever the turn, phase, or round moves on.
   useEffect(() => {
@@ -409,9 +510,9 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
   return (
     <div className="table">
       <ul className="seats" aria-label={t("lobby.seats")} ref={seatsRef}>
-        {mySeat !== null && me && <SeatChip seat={me} room={room} handValue={playing ? handPenalty(room.hand) : undefined} />}
+        {mySeat !== null && me && <SeatChip seat={me} room={room} handValue={playing ? handPenalty(room.hand) : undefined} reaction={reaction?.seat === mySeat ? reaction : undefined} />}
         {clockwise.map((seat) => (
-          <SeatChip key={seat.seat} seat={seat} room={room} />
+          <SeatChip key={seat.seat} seat={seat} room={room} reaction={reaction?.seat === seat.seat ? reaction : undefined} />
         ))}
       </ul>
 
@@ -512,6 +613,8 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
       </section>
 
       <section className={`controls${tipsOpen ? " tips-open" : ""}`} aria-label={t("table.hand")}>
+        <div className={`turn-cue${reactionsOpen ? " turn-cue-picker-open" : ""}`}>
+          <div className="turn-cue-content" aria-hidden={reactionsOpen || undefined}>
         {mySeat !== null && playing && needsOpening && (
           <div className="opening-meter" role="progressbar" aria-label={t("opening.total", { points: openingProgress, needed: openingNeeded })} aria-valuemin={0} aria-valuemax={openingNeeded} aria-valuenow={Math.min(openingNeeded, openingProgress)}>
             <strong dir="ltr">{openingProgress} / {openingNeeded}</strong>
@@ -521,6 +624,9 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
         <p className={`status${myTurn ? " status-mine" : ""}`} role="status" aria-live="polite">
           {status}
         </p>
+          </div>
+          {reactionsOpen && <ReactionTray triggerRef={reactionTrigger} onChoose={chooseReaction} onClose={closeReactions} />}
+        </div>
         {myTurn && room.turnPhase === "draw" && !taking && stockBlocked && <p className="note">{t("turn.stockEmpty")}</p>}
 
         {mySeat !== null && me && playing && (
@@ -597,8 +703,8 @@ export function Table({ game, room, prefs }: { game: Game; room: PublicRoomState
               ) : (
                 <span className="action-main-placeholder" aria-hidden="true" />
               )}
-              <button type="button" className="button button-small tips-toggle action-help" aria-expanded={tipsOpen} aria-controls="table-help" aria-label={t("hand.tips")} onClick={() => setTipsOpen((open) => !open)}>
-                ?
+              <button ref={reactionTrigger} type="button" className={`button button-small action-help reaction-dock-trigger${reaction?.seat === mySeat ? " reaction-dock-active" : ""}`} aria-expanded={reactionsOpen} aria-controls={reactionsOpen ? "reaction-tray" : undefined} aria-label={t(reactionsOpen ? "reaction.close" : "reaction.open")} onClick={() => { onHideTips(); setReactionsOpen((open) => !open); }}>
+                {reaction?.seat === mySeat ? <ReactionIcon kind={reaction.kind} /> : <ReactionMenuIcon />}
               </button>
             </div>
             {(taking || selected.length > 0) && (

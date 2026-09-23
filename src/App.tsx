@@ -25,6 +25,7 @@ export function App() {
   const [resultsHidden, setResultsHidden] = useState(false);
   // Phones fold the top bar buttons into a menu. Desktop shows them all the time.
   const [menuOpen, setMenuOpen] = useState(false);
+  const [tipsOpen, setTipsOpen] = useState(false);
   const room = game.room;
 
   const chooseAvatar = (id: AvatarId) => {
@@ -54,6 +55,7 @@ export function App() {
 
   // Each new result opens the results panel again.
   useEffect(() => setResultsHidden(false), [room?.status, room?.roundNumber]);
+  useEffect(() => setTipsOpen(false), [room?.code, room?.status, room?.roundNumber]);
 
   const leave = () => {
     if (!room) return;
@@ -146,11 +148,19 @@ export function App() {
             <button type="button" className="topbar-menu-row" aria-pressed={prefs.sound} onClick={() => toggle("sound")}>
               <span>{t("prefs.sound")}</span><span className="topbar-menu-value">{prefs.sound ? t("prefs.on") : t("prefs.off")}</span>
             </button>
+            <button type="button" className="topbar-menu-row" aria-pressed={prefs.botReactions} onClick={() => toggle("botReactions")}>
+              <span>{t("prefs.botReactions")}</span><span className="topbar-menu-value">{prefs.botReactions ? t("prefs.on") : t("prefs.off")}</span>
+            </button>
             <button type="button" className="topbar-menu-row" aria-pressed={prefs.reducedMotion} onClick={() => toggle("reducedMotion")}>
               <span>{t("prefs.motion")}</span><span className="topbar-menu-value">{prefs.reducedMotion ? t("prefs.on") : t("prefs.off")}</span>
             </button>
           </div>
           <div className="topbar-menu-group topbar-menu-footer">
+            {!room.shuffleRitual && (
+              <button type="button" className="topbar-menu-row" aria-expanded={tipsOpen} aria-controls="table-help" onClick={() => { setMenuOpen(false); setTipsOpen((open) => !open); }}>
+                <span>{t("prefs.tips")}</span><span aria-hidden="true">›</span>
+              </button>
+            )}
             <button type="button" className="topbar-menu-row" onClick={() => { setMenuOpen(false); setShowRules(true); }}>
               <span>{t("prefs.rules")}</span><span aria-hidden="true">›</span>
             </button>
@@ -167,7 +177,7 @@ export function App() {
         </p>
       )}
 
-      {room.shuffleRitual ? <ShuffleRitual game={game} room={room} ritual={room.shuffleRitual} prefs={prefs} /> : <Table game={game} room={room} prefs={prefs} />}
+      {room.shuffleRitual ? <ShuffleRitual game={game} room={room} ritual={room.shuffleRitual} prefs={prefs} /> : <Table game={game} room={room} prefs={prefs} tipsOpen={tipsOpen} onHideTips={() => setTipsOpen(false)} reactionsBlocked={menuOpen || showRules || (hasResult && !resultsHidden)} />}
 
       {hasResult && !resultsHidden && <Results game={game} room={room} onHide={() => setResultsHidden(true)} onLeave={leave} />}
       {hasResult && resultsHidden && (

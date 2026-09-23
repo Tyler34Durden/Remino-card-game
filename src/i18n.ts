@@ -5,7 +5,7 @@ import { ar } from "./i18n.ar.ts";
 const en = {
   "app.title": "Remino",
   "app.tagline": "The Libyan card game, online with friends.",
-  "app.taglineSolo": "The Libyan card game. Play the café regulars.",
+  "app.taglineSolo": "A Libyan card game.",
   "app.connecting": "Connecting to the server…",
   "app.offline": "Connection lost. Reconnecting…",
   // The switch shows the name of the language it changes to.
@@ -14,7 +14,7 @@ const en = {
 
   "home.name": "Display name",
   "home.namePlaceholder": "Your name",
-  "home.playSolo": "Play against the café",
+  "home.playSolo": "Play against bots",
   "home.create": "Create a private room",
   "home.join": "Join a room",
   "home.code": "Room code",
@@ -22,6 +22,7 @@ const en = {
   "home.joinButton": "Join",
   "home.createButton": "Create room",
   "home.rules": "Read the rules",
+  "home.style": "My style",
   "home.nameRequired": "Enter a display name first.",
   "home.back": "Back",
 
@@ -115,7 +116,6 @@ const en = {
   "hand.moveRight": "Move the selected card right",
   "hand.group": "Group {number}",
   "hand.newGroup": "+ New group",
-  "hand.tips": "Show or hide playing tips",
   "hand.hint": "Drag a card to rearrange your hand. On a touch screen, hold the card for a moment first. Arranging is only for you and never counts as a play.",
 
   "planner.title": "Your points and meld calculator",
@@ -193,6 +193,7 @@ const en = {
   "result.hide": "View the table",
 
   "prefs.sound": "Sound",
+  "prefs.botReactions": "Bot reactions",
   "prefs.motion": "Reduced motion",
   "prefs.language": "Language",
   "prefs.theme": "Appearance",
@@ -201,6 +202,7 @@ const en = {
   "prefs.dark": "Dark",
   "prefs.light": "Light",
   "prefs.rules": "Rules",
+  "prefs.tips": "Game tips",
   "back.title": "Card back",
   "back.classic": "Classic",
   "back.gold": "Gold arabesque",
@@ -215,6 +217,16 @@ const en = {
   "tableBackground.wood": "Wood café",
   "avatar.title": "Your avatar",
   "avatar.option": "Avatar {number}",
+  "reaction.open": "Reactions",
+  "reaction.close": "Close reactions",
+  "reaction.tea": "Tea sip",
+  "reaction.coffee": "Coffee break",
+  "reaction.hookah": "Hookah puff",
+  "reaction.bravo": "Well played!",
+  "reaction.teaShort": "Tea",
+  "reaction.coffeeShort": "Coffee",
+  "reaction.hookahShort": "Hookah",
+  "reaction.bravoShort": "Bravo!",
   "prefs.leave": "Leave",
   "prefs.leaveConfirmHost": "You are the host. Leaving closes the room for everyone. Leave?",
   "prefs.leaveConfirm": "Leave this room? A bot will take your seat.",

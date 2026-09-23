@@ -5,6 +5,7 @@ import { DEFAULT_AVATAR, isAvatarId } from "../shared/avatars.ts";
 import type { AvatarId } from "../shared/avatars.ts";
 import { DEFAULT_TABLE_BACKGROUND, isTableBackgroundId, tableBackgroundFile } from "./tableBackgrounds.ts";
 import type { TableBackgroundId } from "./tableBackgrounds.ts";
+import type { ReactionKind } from "./components/ReactionIcon.tsx";
 
 const PREFS_KEY = "romino-prefs";
 
@@ -12,6 +13,7 @@ export type ThemeChoice = "system" | "light" | "dark";
 
 export interface Prefs {
   sound: boolean;
+  botReactions: boolean;
   reducedMotion: boolean;
   theme: ThemeChoice;
   cardBack: CardBackId;
@@ -20,7 +22,7 @@ export interface Prefs {
 }
 
 /** The preferences that are a plain on or off. */
-export type BooleanPref = "sound" | "reducedMotion";
+export type BooleanPref = "sound" | "botReactions" | "reducedMotion";
 
 function systemPrefersDark(): boolean {
   return typeof window.matchMedia === "function" && window.matchMedia("(prefers-color-scheme: dark)").matches;
@@ -31,7 +33,7 @@ function systemPrefersReducedMotion(): boolean {
 }
 
 function loadPrefs(): Prefs {
-  const fallback: Prefs = { sound: true, reducedMotion: systemPrefersReducedMotion(), theme: "system", cardBack: DEFAULT_CARD_BACK, avatarId: DEFAULT_AVATAR, tableBackground: DEFAULT_TABLE_BACKGROUND };
+  const fallback: Prefs = { sound: true, botReactions: true, reducedMotion: systemPrefersReducedMotion(), theme: "system", cardBack: DEFAULT_CARD_BACK, avatarId: DEFAULT_AVATAR, tableBackground: DEFAULT_TABLE_BACKGROUND };
   try {
     const raw = localStorage.getItem(PREFS_KEY);
     if (!raw) return fallback;
@@ -39,6 +41,7 @@ function loadPrefs(): Prefs {
     return {
       ...fallback,
       ...saved,
+      botReactions: typeof saved.botReactions === "boolean" ? saved.botReactions : fallback.botReactions,
       avatarId: isAvatarId(saved.avatarId) ? saved.avatarId : DEFAULT_AVATAR,
       tableBackground: isTableBackgroundId(saved.tableBackground) ? saved.tableBackground : DEFAULT_TABLE_BACKGROUND,
     };
@@ -112,6 +115,69 @@ const TONES: Record<SoundName, { frequency: number; duration: number; type: Osci
   ],
   error: [{ frequency: 180, duration: 0.15, type: "square" }],
 };
+
+/** Quiet original Foley, scheduled to the SVG beats; cancellation also stops future notes. */
+export function playReactionSound(kind: ReactionKind, enabled: boolean): () => void {
+  const sources: AudioScheduledSourceNode[] = [];
+  const cancel = () => {
+    for (const source of sources) {
+      try { source.stop(); } catch { /* An already-ended note needs no cleanup. */ }
+    }
+  };
+  if (!enabled) return cancel;
+  try {
+    audio ??= new AudioContext();
+    if (audio.state === "suspended") void audio.resume().catch(() => {});
+    const context = audio;
+    const start = context.currentTime;
+    const note = (frequency: number, offset: number, duration: number, volume: number, endFrequency = frequency) => {
+      const oscillator = context.createOscillator();
+      const gain = context.createGain();
+      oscillator.frequency.setValueAtTime(frequency, start + offset);
+      oscillator.frequency.exponentialRampToValueAtTime(endFrequency, start + offset + duration);
+      gain.gain.setValueAtTime(0, start + offset);
+      gain.gain.linearRampToValueAtTime(volume, start + offset + .003);
+      gain.gain.exponentialRampToValueAtTime(.0001, start + offset + duration);
+      oscillator.connect(gain).connect(context.destination);
+      oscillator.onended = () => { oscillator.disconnect(); gain.disconnect(); };
+      sources.push(oscillator);
+      oscillator.start(start + offset);
+      oscillator.stop(start + offset + duration);
+    };
+    if (kind === "tea") {
+      note(2350, .9, .18, .018);
+      note(3580, .9, .1, .007);
+    } else if (kind === "coffee") {
+      note(1180, .46, .1, .014);
+      note(520, .46, .075, .014);
+    } else if (kind === "hookah") {
+      note(260, .4, .09, .018, 115);
+      note(320, .51, .085, .014, 140);
+      note(240, .61, .075, .01, 100);
+    } else {
+      for (const offset of [.35, .73]) {
+        const duration = .085;
+        const buffer = context.createBuffer(1, Math.floor(context.sampleRate * duration), context.sampleRate);
+        const samples = buffer.getChannelData(0);
+        for (let i = 0; i < samples.length; i++) samples[i] = (Math.random() * 2 - 1) * Math.exp(-i / samples.length * 7);
+        const source = context.createBufferSource();
+        const filter = context.createBiquadFilter();
+        const gain = context.createGain();
+        source.buffer = buffer;
+        filter.type = "bandpass";
+        filter.frequency.value = 1450;
+        filter.Q.value = .7;
+        gain.gain.value = .04;
+        source.connect(filter).connect(gain).connect(context.destination);
+        source.onended = () => { source.disconnect(); filter.disconnect(); gain.disconnect(); };
+        sources.push(source);
+        source.start(start + offset);
+        source.stop(start + offset + duration);
+      }
+    }
+  } catch { cancel(); /* Audio is optional, including on browsers that block it. */ }
+  return cancel;
+}
 
 /** Plays a short synthesized tone. There are no audio files to download. */
 export function playSound(name: SoundName, enabled: boolean): void {

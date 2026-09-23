@@ -1,0 +1,165 @@
+/* Café reactions share one 2.2 s lifecycle. Picker artwork is always still. */
+.reaction-art { display: block; width: 100%; height: 100%; overflow: hidden; }
+.reaction-effect { opacity: 0; }
+
+/* Exchange turn cues for the picker without moving a card or the dock. */
+.game .turn-cue {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 5.5rem;
+  width: 100%;
+}
+.game .turn-cue-content { width: 100%; }
+.game .turn-cue-picker-open .turn-cue-content { visibility: hidden; }
+.game .reaction-tray {
+  position: absolute;
+  z-index: 7;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  align-items: center;
+  gap: .4rem;
+  width: min(100%, 21rem);
+  height: 5.25rem;
+  margin: auto;
+  padding: .35rem .7rem;
+  border: 1px solid #dbbd7b;
+  border-radius: 1.5rem;
+  background: #194d4e;
+  box-shadow: 0 4px 12px #062c3440, inset 0 0 0 3px #ffffff0b;
+  animation: reaction-tray-in .15s ease-out both;
+}
+.game .reaction-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: .2rem;
+  min-width: 44px;
+  min-height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: .8rem;
+  background: transparent;
+  color: #fff2d3;
+  font: inherit;
+  font-size: .7rem;
+  font-weight: 700;
+  line-height: 1.1;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.game .reaction-option-art {
+  display: grid;
+  place-items: center;
+  width: 3.15rem;
+  height: 3.15rem;
+  padding: .16rem;
+  border: 1px solid #ddbd7b;
+  border-radius: 50%;
+  background: #fff5dc;
+  box-shadow: 0 2px 0 #092c30, inset 0 0 0 2px #fffcf1;
+}
+.game .reaction-option:hover .reaction-option-art,
+.game .reaction-option:focus-visible .reaction-option-art { background: #ffe4a2; border-color: #ffce6e; }
+.game .reaction-option:active .reaction-option-art { box-shadow: inset 0 1px 3px #73551d40; }
+.game .reaction-option-label { white-space: nowrap; }
+.game .reaction-dock-trigger:focus-visible,
+.game .reaction-option:focus-visible { outline: 3px solid #ffc55c; outline-offset: 3px; }
+
+.game .action-dock .reaction-dock-trigger,
+:root[data-theme="dark"] .game .action-dock .reaction-dock-trigger {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-width: 44px;
+  min-height: 44px;
+  border-color: #ebd8a7;
+  background: #fff3d4;
+  color: #174b4c;
+}
+.game .action-dock .reaction-dock-trigger:hover,
+.game .action-dock .reaction-dock-trigger[aria-expanded="true"] { background: #ffe2a2; border-color: #ffc55c; }
+.game .reaction-dock-trigger > svg { width: 1.8rem; height: 1.8rem; }
+.game .action-dock .reaction-dock-active { border-color: #ffc55c; box-shadow: 0 0 0 2px #ffc55c60; }
+.game .reaction-dock-active::after {
+  content: "";
+  position: absolute;
+  top: .2rem;
+  inset-inline-end: .25rem;
+  width: .4rem;
+  height: .4rem;
+  border-radius: 50%;
+  background: #267a65;
+}
+
+/* Reserve the upper corner so a bubble stays in its own seat, above the name/count. */
+.game .seats { padding-block-start: 1.5rem; }
+.game .seat-reaction {
+  position: absolute;
+  z-index: 5;
+  top: -1.2rem;
+  inset-inline-end: -.65rem;
+  display: grid;
+  place-items: center;
+  width: 3.25rem;
+  height: 3.25rem;
+  padding: .16rem;
+  border: 1.5px solid #dfb86c;
+  border-radius: 50%;
+  background: #fff6de;
+  box-shadow: 0 2px 7px #062c3455, inset 0 0 0 2px #fffdf5;
+  pointer-events: none;
+  animation: reaction-appear 2.2s ease-out both;
+}
+.seat-reaction .tea-glass { transform-origin: 32px 47px; animation: tea-sip 2.2s ease-in-out both; }
+.seat-reaction .tea-saucer { transform-origin: 32px 54px; animation: tea-settle 2.2s ease-out both; }
+.seat-reaction .tea-ring { transform-origin: 32px 54px; animation: tea-ring 2.2s ease-out both; }
+.seat-reaction .tea-steam-one { animation: tea-steam 2.2s ease-out both; }
+.seat-reaction .tea-steam-two { animation: tea-steam 2.2s ease-out .12s both; }
+.seat-reaction .coffee-drop { animation: coffee-drop 2.2s ease-in both; }
+.seat-reaction .coffee-ripple { transform-origin: 32px 26.5px; animation: coffee-ripple 2.2s ease-out both; }
+.seat-reaction .coffee-ripple-two { transform-origin: 32px 26.5px; animation: coffee-ripple 2.2s ease-out .1s both; }
+.seat-reaction .coffee-cup { transform-origin: 32px 55px; animation: coffee-settle 2.2s ease-out both; }
+.seat-reaction .coffee-steam { animation: coffee-steam 2.2s ease-out both; }
+.seat-reaction .hookah-hose { transform-origin: 32px 38px; animation: hookah-hose 2.2s ease-in-out both; }
+.seat-reaction .hookah-puff { transform-origin: 32px 16px; animation: hookah-puff 2.2s ease-out both; }
+.seat-reaction .hookah-wisp { animation: hookah-wisp 2.2s ease-out both; }
+.seat-reaction .clap-back { transform-origin: 22px 52px; animation: clap-back 2.2s ease-in-out both; }
+.seat-reaction .clap-front { transform-origin: 45px 52px; animation: clap-front 2.2s ease-in-out both; }
+.seat-reaction .clap-marks { transform-origin: 32px 12px; animation: clap-marks 2.2s ease-out both; }
+
+@keyframes reaction-tray-in { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
+@keyframes reaction-appear { 0% { opacity: 0; transform: scale(.9); } 7%, 82% { opacity: 1; transform: scale(1); } 100% { opacity: 0; transform: scale(1); } }
+@keyframes tea-sip { 0%, 7%, 42%, 100% { transform: rotate(0); } 22%, 27% { transform: rotate(-10deg); } }
+@keyframes tea-settle { 0%, 39%, 54%, 100% { transform: translateY(0); } 45% { transform: translateY(1px); } 49% { transform: translateY(-.5px); } }
+@keyframes tea-ring { 0%, 40% { opacity: 0; transform: scale(.8); } 43% { opacity: .6; } 61%, 100% { opacity: 0; transform: scale(1.12); } }
+@keyframes tea-steam { 0%, 18% { opacity: .25; transform: translateY(3px); } 32% { opacity: .8; } 50%, 100% { opacity: 0; transform: translateY(-3px); } }
+@keyframes coffee-drop { 0%, 7% { opacity: 0; transform: translateY(-3px); } 10% { opacity: 1; } 21% { opacity: 1; transform: translateY(9px); } 24%, 100% { opacity: 0; transform: translateY(10px); } }
+@keyframes coffee-ripple { 0%, 20% { opacity: 0; transform: scale(.25); } 24% { opacity: .9; } 43%, 100% { opacity: 0; transform: scale(1.3); } }
+@keyframes coffee-settle { 0%, 21%, 40%, 100% { transform: translateY(0); } 25% { transform: translateY(1px); } }
+@keyframes coffee-steam { 0%, 21% { opacity: 0; transform: translateY(2px); } 40% { opacity: .6; } 63%, 100% { opacity: 0; transform: translateY(-4px); } }
+@keyframes hookah-hose { 0%, 7%, 22%, 100% { transform: rotate(0); } 15% { transform: rotate(-4deg); } }
+@keyframes hookah-puff { 0%, 17% { opacity: 0; transform: translate(-2px, 4px) scale(.4); } 27% { opacity: .65; } 57%, 100% { opacity: 0; transform: translate(1px, -4px) scale(1.08); } }
+@keyframes hookah-wisp { 0%, 12%, 68%, 100% { opacity: .6; } 22%, 57% { opacity: 0; } }
+@keyframes clap-back { 0%, 7%, 24%, 43%, 100% { transform: translateX(-2px) rotate(-5deg); } 16%, 33% { transform: translateX(2px) rotate(5deg); } }
+@keyframes clap-front { 0%, 7%, 24%, 43%, 100% { transform: translateX(2px) rotate(5deg); } 16%, 33% { transform: translateX(-2px) rotate(-5deg); } }
+@keyframes clap-marks { 0%, 13%, 24%, 30%, 52%, 100% { opacity: 0; transform: scale(.85); } 17%, 35% { opacity: 1; transform: scale(1.05); } }
+
+@media (max-width: 640px) {
+  .game .seat-reaction { width: 2.75rem; height: 2.75rem; top: -1.1rem; inset-inline-end: -.65rem; }
+  .game .turn-cue { min-height: 5.15rem; }
+  .game .reaction-tray { height: 4.95rem; gap: .25rem; padding: .3rem .55rem; }
+  .game .reaction-option-art { width: 2.9rem; height: 2.9rem; }
+  .game .reaction-option { font-size: .65rem; }
+  :root[lang="ar"] .game .reaction-option { font-size: .8rem; }
+}
+
+/* Both the OS preference and the in-game toggle suppress every animated layer. */
+@media (prefers-reduced-motion: reduce) {
+  .game .reaction-tray, .game .seat-reaction, .game .seat-reaction * { animation: none !important; }
+}
+:root[data-reduced-motion="true"] .game .reaction-tray,
+:root[data-reduced-motion="true"] .game .seat-reaction,
+:root[data-reduced-motion="true"] .game .seat-reaction * { animation: none !important; }
