@@ -392,8 +392,12 @@
     padding: 0.05rem 0.2rem;
   }
 
-  /* While dragging, the new-group target floats in a band above the fan, where a thumb can reach it. */
-  .hand-dragging {
+  /*
+   * While dragging, the new-group target floats in a band above the fan, where a thumb can reach it.
+   * The selector has to outrank ".game .hand" in concept-ui.css, which sets the resting padding;
+   * without that the band never opens and the target is clipped by the hand's own overflow.
+   */
+  .game .hand.hand-dragging {
     padding-top: 2.7rem;
   }
 
