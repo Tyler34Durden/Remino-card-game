@@ -100,7 +100,7 @@
   position: absolute;
   z-index: 5;
   top: -1.2rem;
-  inset-inline-end: -.65rem;
+  inset-inline-end: -2.5rem;
   display: grid;
   place-items: center;
   width: 3.25rem;
@@ -148,7 +148,8 @@
 @keyframes clap-marks { 0%, 13%, 24%, 30%, 52%, 100% { opacity: 0; transform: scale(.85); } 17%, 35% { opacity: 1; transform: scale(1.05); } }
 
 @media (max-width: 640px) {
-  .game .seat-reaction { width: 2.75rem; height: 2.75rem; top: -1.1rem; inset-inline-end: -.65rem; }
+  .game .seat-reaction { width: 2.75rem; height: 2.75rem; top: -1.1rem; inset-inline-end: -2.5rem; }
+  .game .seat-chip:last-child .seat-reaction { inset-inline-end: auto; inset-inline-start: -2.5rem; }
   .game .turn-cue { min-height: 5.15rem; }
   .game .reaction-tray { height: 4.95rem; gap: .25rem; padding: .3rem .55rem; }
   .game .reaction-option-art { width: 2.9rem; height: 2.9rem; }
