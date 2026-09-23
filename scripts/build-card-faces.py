@@ -1,8 +1,8 @@
 """
 Builds the card faces from the new artwork in "Component 5".
 
-The folder holds A and 2 to 10. J, Q and K keep their painted illustrations and
-this script leaves them alone.
+The folder holds A and 2 to 10. J, Q and K arrive as finished artwork that
+already carries its corner index, so this script leaves them alone.
 
 One thing is added to the supplied art: a small suit glyph under the corner
 rank. The fanned hand on a phone shows only the left edge of a card, and the
