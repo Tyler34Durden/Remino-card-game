@@ -48,6 +48,19 @@ afterEach(async () => {
 });
 
 describe("socket server", () => {
+  it("shares avatar choices and validates changes", async () => {
+    const host = await client();
+    const created = await ask<SessionInfo>((ack) => host.emit("create_room", { name: "Mona", settings: DEFAULT_SETTINGS, avatarId: 4 }, ack));
+    if (!created.ok) throw new Error(created.error);
+    const friend = await client();
+    const joined = await ask<SessionInfo>((ack) => friend.emit("join_room", { name: "Omar", roomCode: created.data.roomCode, avatarId: 3 }, ack));
+    if (!joined.ok) throw new Error(joined.error);
+    const changed = nextState(host, (state) => state.seats[1].avatarId === 5);
+    expect((await ask((ack) => friend.emit("update_avatar", 5, ack))).ok).toBe(true);
+    expect((await changed).seats.map((seat) => seat.avatarId).slice(0, 2)).toEqual([4, 5]);
+    expect((await ask((ack) => friend.emit("update_avatar", 99 as never, ack))).ok).toBe(false);
+  });
+
   it("runs a room over real sockets and keeps hands private", async () => {
     const host = await client();
     const created = await ask<SessionInfo>((ack) => host.emit("create_room", { name: "Mona", settings: DEFAULT_SETTINGS }, ack));

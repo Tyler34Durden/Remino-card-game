@@ -1,11 +1,320 @@
 /* The concept's portrait/placard/card hierarchy, with live game data over the café scene. */
+.avatar-portrait {
+  display: inline-block;
+  flex: none;
+  border-radius: 50%;
+  background-image: url("/avatars/cafe-portraits-v1.jpg");
+  background-size: 300% 200%;
+  background-repeat: no-repeat;
+}
+
+.avatar-portrait-0 { background-position: 0% 0%; }
+.avatar-portrait-1 { background-position: 50% 0%; }
+.avatar-portrait-2 { background-position: 100% 0%; }
+.avatar-portrait-3 { background-position: 0% 100%; }
+.avatar-portrait-4 { background-position: 50% 100%; }
+.avatar-portrait-5 { background-position: 100% 100%; }
+
+.avatar-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.avatar-picker-title {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.avatar-picker-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.avatar-option {
+  position: relative;
+  display: block;
+  width: 3rem;
+  height: 3rem;
+  padding: 0;
+  border: 2px solid transparent;
+  border-radius: 50%;
+  background: transparent;
+  cursor: pointer;
+}
+
+.avatar-option .avatar-portrait {
+  width: 100%;
+  height: 100%;
+}
+
+.avatar-option-on {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.25);
+}
+
+.avatar-option:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.avatar-option-check {
+  position: absolute;
+  inset-inline-end: -0.2rem;
+  bottom: -0.2rem;
+  display: grid;
+  place-items: center;
+  width: 1.1rem;
+  height: 1.1rem;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #2a1a00;
+  font-size: 0.75rem;
+  font-weight: 800;
+}
+
+.seat-name {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.lobby-avatar {
+  width: 2rem;
+  height: 2rem;
+  border: 2px solid var(--line);
+}
+
+.table-background-picker {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.table-background-picker-title {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 700;
+}
+
+.table-background-picker-row {
+  display: flex;
+  gap: 0.55rem;
+}
+
+.table-background-option {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  width: 6rem;
+  padding: 0.2rem;
+  border: 2px solid var(--line);
+  border-radius: 0.6rem;
+  background: var(--cream);
+  color: var(--ink);
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.table-background-option img {
+  display: block;
+  width: 100%;
+  height: 4.6rem;
+  border-radius: 0.35rem;
+  object-fit: cover;
+  object-position: center 62%;
+}
+
+.table-background-option-on {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.2);
+}
+
+.table-background-option:focus-visible {
+  outline: 3px solid var(--gold);
+  outline-offset: 3px;
+}
+
+.table-background-check {
+  position: absolute;
+  inset-inline-end: 0.35rem;
+  top: 0.35rem;
+  display: grid;
+  place-items: center;
+  width: 1.15rem;
+  height: 1.15rem;
+  border-radius: 50%;
+  background: var(--gold);
+  color: #2a1a00;
+}
+
 .game .topbar-title strong {
-  display: none;
+  display: block;
+  color: #fff8e9;
+  font-size: 0.98rem;
+  line-height: 1.1;
 }
 
 .game .topbar {
-  padding-block: 0.32rem;
+  position: relative;
+  z-index: 40;
+  min-height: 3rem;
+  justify-content: space-between;
+  padding: 0.3rem 0.65rem;
   background: rgba(17, 53, 56, 0.85);
+}
+
+.game .topbar-title {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  min-width: 0;
+  line-height: 1.1;
+}
+
+.game .topbar-title span {
+  overflow: hidden;
+  color: #cde4df;
+  font-size: 0.72rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.game .topbar-chips {
+  display: none;
+}
+
+.game .menu-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  width: 2.35rem;
+  height: 2.35rem;
+  min-width: 2.35rem;
+  min-height: 2.35rem;
+  margin-inline-start: auto;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.09);
+  color: #fff8e9;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.game .topbar-actions {
+  display: none;
+}
+
+.game .topbar-actions.topbar-actions-open {
+  position: absolute;
+  z-index: 50;
+  top: calc(100% + 0.3rem);
+  inset-inline-start: auto;
+  inset-inline-end: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+  width: min(22rem, calc(100vw - 1rem));
+  max-height: calc(100dvh - 4rem);
+  margin: 0;
+  padding: 0.85rem;
+  overflow-y: auto;
+  border: 1px solid #9fb9ae;
+  border-radius: 14px;
+  background: #fff8e9;
+  box-shadow: 0 12px 28px rgba(7, 43, 47, 0.4);
+  color: #163f42;
+}
+
+.game .topbar-menu-heading {
+  font-size: 0.95rem;
+}
+
+.game .topbar-menu-group {
+  display: grid;
+  gap: 0.3rem;
+}
+
+.game .topbar-menu-footer {
+  padding-top: 0.55rem;
+  border-top: 1px solid #d7e0d6;
+}
+
+.game .topbar-menu-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  min-height: 2.7rem;
+  width: 100%;
+  padding: 0.55rem 0.7rem;
+  border: 1px solid #e1dfd3;
+  border-radius: 9px;
+  background: #fffef8;
+  color: #163f42;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 700;
+  text-align: start;
+  cursor: pointer;
+}
+
+.game .topbar-menu-row:hover,
+.game .topbar-menu-row:focus-visible {
+  border-color: #187770;
+  background: #eef8ee;
+}
+
+.game .topbar-menu-value {
+  flex: none;
+  padding: 0.22rem 0.45rem;
+  border-radius: 999px;
+  background: #e4efe7;
+  color: #225c55;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.game .topbar-menu-leave {
+  color: #8c3428;
+}
+
+:root[data-theme="dark"] .game .topbar-actions.topbar-actions-open {
+  border-color: #477068;
+  background: #1b302d;
+  color: #f2f5ed;
+}
+
+:root[data-theme="dark"] .game .topbar-menu-footer {
+  border-top-color: #3c5a51;
+}
+
+:root[data-theme="dark"] .game .topbar-menu-row {
+  border-color: #426057;
+  background: #25413b;
+  color: #f2f5ed;
+}
+
+:root[data-theme="dark"] .game .topbar-menu-row:hover,
+:root[data-theme="dark"] .game .topbar-menu-row:focus-visible {
+  border-color: #78c69f;
+  background: #305348;
+}
+
+:root[data-theme="dark"] .game .topbar-menu-value {
+  background: #355b4d;
+  color: #e1f6e8;
+}
+
+:root[data-theme="dark"] .game .topbar-menu-leave {
+  color: #ffb4aa;
 }
 
 .game .table {
@@ -65,18 +374,8 @@
   height: clamp(4.2rem, 8vw, 6.4rem);
   border: 3px solid #fff8e8;
   border-radius: 50%;
-  background-image: url("/avatars/cafe-portraits-v1.jpg");
-  background-size: 300% 200%;
-  background-repeat: no-repeat;
   box-shadow: 0 3px 0 #18565c, 0 6px 13px rgba(4, 32, 36, 0.28);
 }
-
-.game .seat-avatar-0 { background-position: 0% 0%; }
-.game .seat-avatar-1 { background-position: 50% 0%; }
-.game .seat-avatar-2 { background-position: 100% 0%; }
-.game .seat-avatar-3 { background-position: 0% 100%; }
-.game .seat-avatar-4 { background-position: 50% 100%; }
-.game .seat-avatar-5 { background-position: 100% 100%; }
 
 .game .seat-active .seat-avatar {
   border-color: #fff5d4;
@@ -614,13 +913,9 @@
   .game .topbar-actions.topbar-actions-open {
     top: calc(100% + 0.3rem);
     margin: 0;
-    max-height: min(70dvh, 22rem);
+    max-height: min(78dvh, 30rem);
     overflow-y: auto;
     overscroll-behavior: contain;
-    border: 2px solid #22565a;
-    border-radius: 14px;
-    background: #fff8e9;
-    box-shadow: 0 12px 28px rgba(7, 43, 47, 0.4);
   }
 
   .game .table {

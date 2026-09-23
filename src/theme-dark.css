@@ -138,7 +138,15 @@
 }
 
 :root[data-theme="dark"] .button-primary {
+  background: linear-gradient(180deg, #ffc96f, var(--amber-deep));
+  border-color: #c8862c;
   color: #2a1a00;
+  box-shadow: 0 2px 0 #895819, 0 4px 10px rgba(0, 0, 0, 0.4);
+}
+
+:root[data-theme="dark"] .button-primary:hover:not(:disabled) {
+  background: linear-gradient(180deg, #ffd485, #f5a63b);
+  border-color: #dc9a42;
 }
 
 :root[data-theme="dark"] .button-quiet,

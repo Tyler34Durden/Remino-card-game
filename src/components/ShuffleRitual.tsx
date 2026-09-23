@@ -73,7 +73,7 @@ export function ShuffleRitual({ game, room, ritual, prefs }: Props) {
       <div className="shuffle-players" aria-label={t("shuffle.players")}>
         {room.seats.map((seat) => (
           <div key={seat.seat} className={`shuffle-player${seat.seat === ritual.dealerSeat ? " shuffle-player-dealer" : ""}`}>
-            <span className={`seat-avatar seat-avatar-${seat.seat % 6}`} aria-hidden="true" />
+            <span className={`seat-avatar avatar-portrait avatar-portrait-${seat.avatarId}`} aria-hidden="true" />
             <strong>{localName(seat.name)}</strong>
           </div>
         ))}

@@ -1,4 +1,6 @@
 import { randomBytes, randomInt } from "./random.ts";
+import { botAvatarForSeat, DEFAULT_AVATAR, isAvatarId } from "../shared/avatars.ts";
+import type { AvatarId } from "../shared/avatars.ts";
 import type { GameAction, PublicRoomState, PublicSeat, RoomSettings, SessionInfo } from "../shared/types.ts";
 import { botViewOf, chooseBotAction, fallbackBotAction } from "../engine/bot.ts";
 import { applyAction, applyLateJoin, createMatch, endMatchEarly, startNextRound, uniqueLowestSeat, validateSettings } from "../engine/game.ts";
@@ -51,6 +53,7 @@ export const DEFAULT_ROOM_OPTIONS: RoomOptions = {
 interface Player {
   id: string;
   name: string;
+  avatarId: AvatarId;
   token: string;
   isHost: boolean;
   connected: boolean;
@@ -121,9 +124,10 @@ export class RoomManager {
   // Rooms and players
   // -------------------------------------------------------------------------
 
-  createRoom(rawName: unknown, settings: RoomSettings): Result<SessionInfo> {
+  createRoom(rawName: unknown, settings: RoomSettings, rawAvatarId: unknown = DEFAULT_AVATAR): Result<SessionInfo> {
     const name = cleanName(rawName);
     if (!name) return fail("Enter a display name.");
+    if (!isAvatarId(rawAvatarId)) return fail("Choose a valid avatar.");
     const problem = validateSettings(settings);
     if (problem) return fail(problem);
     if (this.rooms.size >= this.options.maxRooms) return fail("The server is full. Try again later.");
@@ -145,16 +149,17 @@ export class RoomManager {
       lastActivity: Date.now(),
     };
     this.rooms.set(code, room);
-    const host = this.addPlayer(room, name, true);
+    const host = this.addPlayer(room, name, true, rawAvatarId);
     this.seat(room, host, 0);
     this.say(room, `${name} created the room.`);
     this.changed(room);
     return ok(this.sessionOf(room, host));
   }
 
-  joinRoom(rawName: unknown, rawCode: unknown): Result<SessionInfo> {
+  joinRoom(rawName: unknown, rawCode: unknown, rawAvatarId: unknown = DEFAULT_AVATAR): Result<SessionInfo> {
     const name = cleanName(rawName);
     if (!name) return fail("Enter a display name.");
+    if (!isAvatarId(rawAvatarId)) return fail("Choose a valid avatar.");
     const room = this.findRoom(rawCode);
     if (!room) return fail("No room has that code.");
     if ([...room.players.values()].some((p) => p.name.toLowerCase() === name.toLowerCase())) {
@@ -163,7 +168,7 @@ export class RoomManager {
     if (room.status === "lobby") {
       const seat = room.seats.findIndex((s) => s.kind === "empty");
       if (seat === -1) return fail("That room is full.");
-      const player = this.addPlayer(room, name, false);
+      const player = this.addPlayer(room, name, false, rawAvatarId);
       this.seat(room, player, seat);
       this.say(room, `${name} joined.`);
       this.changed(room);
@@ -173,7 +178,7 @@ export class RoomManager {
     const reserved = new Set([...room.players.values()].map((p) => p.reservedSeat));
     const seat = room.seats.findIndex((s, i) => s.kind === "bot" && !reserved.has(i));
     if (seat === -1) return fail("Every seat in that room is taken by a player.");
-    const player = this.addPlayer(room, name, false);
+    const player = this.addPlayer(room, name, false, rawAvatarId);
     player.reservedSeat = seat;
     this.say(room, `${name} joined and will take ${room.seats[seat].botName}'s seat next round.`);
     this.changed(room);
@@ -299,6 +304,17 @@ export class RoomManager {
       });
     }
     room.settings = { ...settings };
+    this.changed(room);
+    return done;
+  }
+
+  updateAvatar(code: string, playerId: string, rawAvatarId: unknown): Result {
+    const room = this.rooms.get(code);
+    const player = room?.players.get(playerId);
+    if (!room || !player) return fail("That room no longer exists.");
+    if (!isAvatarId(rawAvatarId)) return fail("Choose a valid avatar.");
+    if (player.avatarId === rawAvatarId) return done;
+    player.avatarId = rawAvatarId;
     this.changed(room);
     return done;
   }
@@ -435,6 +451,7 @@ export class RoomManager {
       const reserved = [...room.players.values()].find((p) => p.reservedSeat === seat);
       return {
         seat,
+        avatarId: player?.avatarId ?? botAvatarForSeat(seat),
         kind: slot.kind,
         name: player ? player.name : slot.kind === "bot" ? slot.botName : "",
         playerId: player ? player.id : null,
@@ -574,10 +591,11 @@ export class RoomManager {
     return this.rooms.get(rawCode.trim().toUpperCase());
   }
 
-  private addPlayer(room: Room, name: string, isHost: boolean): Player {
+  private addPlayer(room: Room, name: string, isHost: boolean, avatarId: AvatarId): Player {
     const player: Player = {
       id: newId(9),
       name,
+      avatarId,
       token: newId(24),
       isHost,
       connected: true,

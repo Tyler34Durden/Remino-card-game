@@ -1,10 +1,11 @@
 import type { PublicRoomState } from "../../shared/types.ts";
+import type { ReactNode } from "react";
 import { t } from "../i18n.ts";
 import type { Game } from "../net.ts";
 import { localName, serverText } from "../serverText.ts";
 import { SettingsForm, settingsSummary } from "./SettingsForm.tsx";
 
-export function Lobby({ game, room, onRules, onLeave }: { game: Game; room: PublicRoomState; onRules: () => void; onLeave: () => void }) {
+export function Lobby({ game, room, onRules, onLeave, avatarPicker }: { game: Game; room: PublicRoomState; onRules: () => void; onLeave: () => void; avatarPicker: ReactNode }) {
   const isHost = room.viewer.isHost;
   const emptySeats = room.seats.filter((s) => s.kind === "empty").length;
 
@@ -32,6 +33,7 @@ export function Lobby({ game, room, onRules, onLeave }: { game: Game; room: Publ
                 <span className="seat-empty">{t("lobby.empty")}</span>
               ) : (
                 <span className="seat-name">
+                  <span className={`avatar-portrait avatar-portrait-${seat.avatarId} lobby-avatar`} aria-hidden="true" />
                   {localName(seat.name)}
                   {seat.isHost && <span className="tag">{t("lobby.host")}</span>}
                   {seat.playerId === room.viewer.playerId && <span className="tag tag-you">{t("lobby.you")}</span>}
@@ -42,6 +44,7 @@ export function Lobby({ game, room, onRules, onLeave }: { game: Game; room: Publ
             </li>
           ))}
         </ol>
+        {avatarPicker}
         {emptySeats > 0 && <p className="note">{t("lobby.botsNote", { count: emptySeats })}</p>}
 
         {game.error && (

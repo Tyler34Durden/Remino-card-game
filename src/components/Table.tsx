@@ -51,7 +51,7 @@ function SeatChip({ seat, room, handValue }: { seat: PublicSeat; room: PublicRoo
   return (
     <li className={`seat-chip${active ? " seat-active" : ""}${isMe ? " seat-me" : ""}${seat.kind === "bot" ? " seat-bot" : ""}`} aria-current={active ? "true" : undefined}>
       <div className="seat-chip-head">
-        <span className={`seat-avatar seat-avatar-${seat.seat % 6}`} aria-hidden="true" />
+        <span className={`seat-avatar avatar-portrait avatar-portrait-${seat.avatarId}`} aria-hidden="true" />
         <span className="seat-card-badge" aria-label={t("table.cards", { count: seat.cardCount })}>
           <span aria-hidden="true"><CardBack small /></span>
           <strong>{seat.cardCount}</strong>
@@ -75,12 +75,13 @@ function SeatChip({ seat, room, handValue }: { seat: PublicSeat; room: PublicRoo
           )}
         </div>
       </div>
-      <div className="seat-chip-tags">
-        <span className={`tag ${seat.opened ? "tag-good" : ""}`}>{seat.opened ? `✓ ${t("table.opened")}` : t("table.notOpened")}</span>
-        {seat.kind === "human" && !seat.connected && <span className="tag tag-warn">⚠ {t("table.offline")}</span>}
-        {seat.botControlled && <span className="tag tag-warn">{t("table.botPlaying")}</span>}
-        {seat.reservedFor && <span className="tag">{t("table.reserved", { name: seat.reservedFor })}</span>}
-      </div>
+      {(seat.kind === "human" && !seat.connected || seat.botControlled || seat.reservedFor) && (
+        <div className="seat-chip-tags">
+          {seat.kind === "human" && !seat.connected && <span className="tag tag-warn">⚠ {t("table.offline")}</span>}
+          {seat.botControlled && <span className="tag tag-warn">{t("table.botPlaying")}</span>}
+          {seat.reservedFor && <span className="tag">{t("table.reserved", { name: seat.reservedFor })}</span>}
+        </div>
+      )}
     </li>
   );
 }

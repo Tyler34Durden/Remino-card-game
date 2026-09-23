@@ -1,4 +1,5 @@
 // Types shared by the rules engine, the server, and the client.
+import type { AvatarId } from "./avatars.ts";
 
 export type Suit = "clubs" | "diamonds" | "hearts" | "spades";
 export type NaturalRank = "A" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" | "10" | "J" | "Q" | "K";
@@ -102,6 +103,7 @@ export type SeatKind = "empty" | "human" | "bot";
 
 export interface PublicSeat {
   seat: number;
+  avatarId: AvatarId;
   kind: SeatKind;
   name: string;
   playerId: string | null;
@@ -179,9 +181,10 @@ export interface GameActionPayload {
 }
 
 export interface ClientToServerEvents {
-  create_room: (payload: { name: string; settings: RoomSettings }, ack: Ack<SessionInfo>) => void;
-  join_room: (payload: { name: string; roomCode: string }, ack: Ack<SessionInfo>) => void;
+  create_room: (payload: { name: string; settings: RoomSettings; avatarId?: AvatarId }, ack: Ack<SessionInfo>) => void;
+  join_room: (payload: { name: string; roomCode: string; avatarId?: AvatarId }, ack: Ack<SessionInfo>) => void;
   reconnect_player: (session: SessionInfo, ack: Ack<SessionInfo>) => void;
+  update_avatar: (avatarId: AvatarId, ack: Ack) => void;
   update_settings: (settings: RoomSettings, ack: Ack) => void;
   start_match: (ack: Ack) => void;
   game_action: (payload: GameActionPayload, ack: Ack) => void;

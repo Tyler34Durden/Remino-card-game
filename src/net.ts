@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { io } from "socket.io-client";
 import type { Socket } from "socket.io-client";
 import type { AckResponse, ClientToServerEvents, GameAction, PublicRoomState, RoomSettings, ServerToClientEvents, SessionInfo } from "../shared/types.ts";
+import type { AvatarId } from "../shared/avatars.ts";
 
 const SESSION_KEY = "romino-session";
 
@@ -38,8 +39,9 @@ export interface Game {
   error: string | null;
   clearError: () => void;
   dismissClosed: () => void;
-  createRoom: (name: string, settings: RoomSettings) => Promise<boolean>;
-  joinRoom: (name: string, roomCode: string) => Promise<boolean>;
+  createRoom: (name: string, settings: RoomSettings, avatarId: AvatarId) => Promise<boolean>;
+  joinRoom: (name: string, roomCode: string, avatarId: AvatarId) => Promise<boolean>;
+  updateAvatar: (avatarId: AvatarId) => Promise<boolean>;
   updateSettings: (settings: RoomSettings) => Promise<boolean>;
   startMatch: () => Promise<boolean>;
   startNextRound: () => Promise<boolean>;
@@ -121,17 +123,17 @@ export function useGame(): Game {
   );
 
   const createRoom = useCallback(
-    (name: string, settings: RoomSettings) =>
+    (name: string, settings: RoomSettings, avatarId: AvatarId) =>
       new Promise<boolean>((resolve) => {
-        socketRef.current?.emit("create_room", { name, settings }, (response) => resolve(enter(response)));
+        socketRef.current?.emit("create_room", { name, settings, avatarId }, (response) => resolve(enter(response)));
       }),
     [enter],
   );
 
   const joinRoom = useCallback(
-    (name: string, roomCode: string) =>
+    (name: string, roomCode: string, avatarId: AvatarId) =>
       new Promise<boolean>((resolve) => {
-        socketRef.current?.emit("join_room", { name, roomCode }, (response) => resolve(enter(response)));
+        socketRef.current?.emit("join_room", { name, roomCode, avatarId }, (response) => resolve(enter(response)));
       }),
     [enter],
   );
@@ -148,6 +150,14 @@ export function useGame(): Game {
     (settings: RoomSettings) =>
       new Promise<boolean>((resolve) => {
         socketRef.current?.emit("update_settings", settings, (response) => resolve(handle(response)));
+      }),
+    [handle],
+  );
+
+  const updateAvatar = useCallback(
+    (avatarId: AvatarId) =>
+      new Promise<boolean>((resolve) => {
+        socketRef.current?.emit("update_avatar", avatarId, (response) => resolve(handle(response)));
       }),
     [handle],
   );
@@ -191,6 +201,7 @@ export function useGame(): Game {
     createRoom,
     joinRoom,
     updateSettings,
+    updateAvatar,
     startMatch: useCallback(() => simple("start_match"), [simple]),
     startNextRound: useCallback(() => simple("start_next_round"), [simple]),
     shuffleSwipe: useCallback(() => simple("shuffle_swipe"), [simple]),

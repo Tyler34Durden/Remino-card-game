@@ -13,7 +13,7 @@
   pointer-events: none;
   background-image:
     linear-gradient(180deg, rgba(15, 55, 57, 0.25), rgba(15, 55, 57, 0.02) 32%, rgba(15, 55, 57, 0.11) 100%),
-    url("/backgrounds/plastic-cafe-table.jpg");
+    var(--table-background, url("/backgrounds/plastic-cafe-table.jpg"));
   background-size: cover;
   background-position: center 62%;
   background-repeat: no-repeat;
@@ -216,7 +216,7 @@
 :root[data-theme="dark"] .game::before {
   background-image:
     linear-gradient(rgba(4, 28, 32, 0.5), rgba(4, 28, 32, 0.38)),
-    url("/backgrounds/plastic-cafe-table.jpg");
+    var(--table-background, url("/backgrounds/plastic-cafe-table.jpg"));
 }
 
 :root[data-theme="dark"] .game .seat-chip,

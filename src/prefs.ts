@@ -1,6 +1,10 @@
 import { useCallback, useEffect, useState } from "react";
 import { cardBackFile, DEFAULT_CARD_BACK } from "./cardBacks.ts";
 import type { CardBackId } from "./cardBacks.ts";
+import { DEFAULT_AVATAR, isAvatarId } from "../shared/avatars.ts";
+import type { AvatarId } from "../shared/avatars.ts";
+import { DEFAULT_TABLE_BACKGROUND, isTableBackgroundId, tableBackgroundFile } from "./tableBackgrounds.ts";
+import type { TableBackgroundId } from "./tableBackgrounds.ts";
 
 const PREFS_KEY = "romino-prefs";
 
@@ -11,6 +15,8 @@ export interface Prefs {
   reducedMotion: boolean;
   theme: ThemeChoice;
   cardBack: CardBackId;
+  avatarId: AvatarId;
+  tableBackground: TableBackgroundId;
 }
 
 /** The preferences that are a plain on or off. */
@@ -25,16 +31,23 @@ function systemPrefersReducedMotion(): boolean {
 }
 
 function loadPrefs(): Prefs {
-  const fallback: Prefs = { sound: true, reducedMotion: systemPrefersReducedMotion(), theme: "system", cardBack: DEFAULT_CARD_BACK };
+  const fallback: Prefs = { sound: true, reducedMotion: systemPrefersReducedMotion(), theme: "system", cardBack: DEFAULT_CARD_BACK, avatarId: DEFAULT_AVATAR, tableBackground: DEFAULT_TABLE_BACKGROUND };
   try {
     const raw = localStorage.getItem(PREFS_KEY);
-    return raw ? { ...fallback, ...(JSON.parse(raw) as Partial<Prefs>) } : fallback;
+    if (!raw) return fallback;
+    const saved = JSON.parse(raw) as Partial<Prefs>;
+    return {
+      ...fallback,
+      ...saved,
+      avatarId: isAvatarId(saved.avatarId) ? saved.avatarId : DEFAULT_AVATAR,
+      tableBackground: isTableBackgroundId(saved.tableBackground) ? saved.tableBackground : DEFAULT_TABLE_BACKGROUND,
+    };
   } catch {
     return fallback;
   }
 }
 
-export function usePrefs(): { prefs: Prefs; dark: boolean; toggle: (key: BooleanPref) => void; toggleTheme: () => void; setCardBack: (id: CardBackId) => void } {
+export function usePrefs(): { prefs: Prefs; dark: boolean; toggle: (key: BooleanPref) => void; toggleTheme: () => void; setCardBack: (id: CardBackId) => void; setAvatar: (id: AvatarId) => void; setTableBackground: (id: TableBackgroundId) => void } {
   const [prefs, setPrefs] = useState<Prefs>(loadPrefs);
   const [systemDark, setSystemDark] = useState(systemPrefersDark);
 
@@ -61,6 +74,10 @@ export function usePrefs(): { prefs: Prefs; dark: boolean; toggle: (key: Boolean
   }, [prefs.cardBack]);
 
   useEffect(() => {
+    document.documentElement.style.setProperty("--table-background", `url("${tableBackgroundFile(prefs.tableBackground)}")`);
+  }, [prefs.tableBackground]);
+
+  useEffect(() => {
     document.documentElement.dataset.reducedMotion = String(prefs.reducedMotion);
     try {
       localStorage.setItem(PREFS_KEY, JSON.stringify(prefs));
@@ -72,7 +89,9 @@ export function usePrefs(): { prefs: Prefs; dark: boolean; toggle: (key: Boolean
   const toggle = useCallback((key: BooleanPref) => setPrefs((p) => ({ ...p, [key]: !p[key] })), []);
   const toggleTheme = useCallback(() => setPrefs((p) => ({ ...p, theme: (p.theme === "system" ? systemPrefersDark() : p.theme === "dark") ? "light" : "dark" })), []);
   const setCardBack = useCallback((id: CardBackId) => setPrefs((p) => ({ ...p, cardBack: id })), []);
-  return { prefs, dark, toggle, toggleTheme, setCardBack };
+  const setAvatar = useCallback((id: AvatarId) => setPrefs((p) => ({ ...p, avatarId: id })), []);
+  const setTableBackground = useCallback((id: TableBackgroundId) => setPrefs((p) => ({ ...p, tableBackground: id })), []);
+  return { prefs, dark, toggle, toggleTheme, setCardBack, setAvatar, setTableBackground };
 }
 
 let audio: AudioContext | null = null;

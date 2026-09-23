@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { GameAction, PublicRoomState, RoomSettings, SessionInfo } from "../shared/types.ts";
+import type { AvatarId } from "../shared/avatars.ts";
 import { RoomManager } from "../server/rooms.ts";
 import type { Result } from "../server/rooms.ts";
 import type { Game } from "./net.ts";
@@ -72,10 +73,10 @@ export function useSoloGame(): Game {
   );
 
   const createRoom = useCallback(
-    async (name: string, settings: RoomSettings) => {
+    async (name: string, settings: RoomSettings, avatarId: AvatarId) => {
       const manager = managerRef.current;
       if (!manager) return false;
-      const result = manager.createRoom(name, settings);
+      const result = manager.createRoom(name, settings, avatarId);
       if (!result.ok) {
         setError(result.error);
         return false;
@@ -114,6 +115,7 @@ export function useSoloGame(): Game {
       return false;
     }, []),
     updateSettings: useCallback(async (settings: RoomSettings) => run((m, s) => m.updateSettings(s.roomCode, s.playerId, settings)), [run]),
+    updateAvatar: useCallback(async (avatarId: AvatarId) => run((m, s) => m.updateAvatar(s.roomCode, s.playerId, avatarId)), [run]),
     startMatch: useCallback(async () => run((m, s) => m.startMatch(s.roomCode, s.playerId)), [run]),
     startNextRound: useCallback(async () => run((m, s) => m.startNextRound(s.roomCode, s.playerId)), [run]),
     shuffleSwipe: useCallback(async () => run((m, s) => m.shuffleSwipe(s.roomCode, s.playerId)), [run]),

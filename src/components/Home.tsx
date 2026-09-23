@@ -1,6 +1,7 @@
 import { useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import type { RoomSettings } from "../../shared/types.ts";
+import type { AvatarId } from "../../shared/avatars.ts";
 import { DEFAULT_SETTINGS } from "../../shared/types.ts";
 import { t } from "../i18n.ts";
 import type { Game } from "../net.ts";
@@ -17,7 +18,7 @@ function savedName(): string {
   }
 }
 
-export function Home({ game, onRules, backPicker }: { game: Game; onRules: () => void; backPicker?: ReactNode }) {
+export function Home({ game, onRules, backPicker, backgroundPicker, avatarPicker, avatarId }: { game: Game; onRules: () => void; backPicker?: ReactNode; backgroundPicker: ReactNode; avatarPicker: ReactNode; avatarId: AvatarId }) {
   const [name, setName] = useState(savedName);
   const [creating, setCreating] = useState(false);
   const [settings, setSettings] = useState<RoomSettings>(DEFAULT_SETTINGS);
@@ -49,7 +50,7 @@ export function Home({ game, onRules, backPicker }: { game: Game; onRules: () =>
   const create = (e: FormEvent) => {
     e.preventDefault();
     const player = checkName();
-    if (player) void run(() => game.createRoom(player, settings));
+    if (player) void run(() => game.createRoom(player, settings, avatarId));
   };
 
   const error = localError ?? (game.error ? serverText(game.error) : null);
@@ -100,6 +101,8 @@ export function Home({ game, onRules, backPicker }: { game: Game; onRules: () =>
             <button type="button" className="button button-quiet" onClick={onRules}>
               {t("home.rules")}
             </button>
+            {avatarPicker}
+            {backgroundPicker}
             {backPicker}
           </div>
         )}

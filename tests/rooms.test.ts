@@ -1,6 +1,7 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { PublicRoomState, SeatCount, SessionInfo } from "../shared/types.ts";
 import { DEFAULT_SETTINGS } from "../shared/types.ts";
+import { BOT_AVATAR_IDS } from "../shared/avatars.ts";
 import { RoomManager } from "../server/rooms.ts";
 import type { Room } from "../server/rooms.ts";
 import { parseAction, parseSettings } from "../server/validate.ts";
@@ -66,6 +67,27 @@ beforeEach(() => {
 
 afterEach(() => {
   vi.useRealTimers();
+});
+
+describe("avatars", () => {
+  it("keeps a player's choice while named bots use only male portraits", () => {
+    const { manager } = setup();
+    const host = must(manager.createRoom("Mona", DEFAULT_SETTINGS, 4));
+    const friend = must(manager.joinRoom("Omar", host.roomCode, 2));
+    expect(view(manager, host).seats[0].avatarId).toBe(4);
+    expect(view(manager, host).seats[1].avatarId).toBe(2);
+
+    must(manager.updateAvatar(host.roomCode, friend.playerId, 0));
+    expect(view(manager, host).seats[1].avatarId).toBe(0);
+    expect(manager.updateAvatar(host.roomCode, friend.playerId, 99).ok).toBe(false);
+    must(manager.startMatch(host.roomCode, host.playerId));
+    const seats = view(manager, host).seats;
+    expect(seats.filter((seat) => seat.kind === "bot").every((seat) => BOT_AVATAR_IDS.some((id) => id === seat.avatarId))).toBe(true);
+
+    manager.markDisconnected(host.roomCode, friend.playerId);
+    vi.advanceTimersByTime(GRACE);
+    expect(view(manager, host).seats[1]).toMatchObject({ avatarId: 0, botControlled: true });
+  });
 });
 
 describe("cosmetic dealer shuffle", () => {

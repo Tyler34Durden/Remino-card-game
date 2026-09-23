@@ -125,7 +125,7 @@ export function createGameServer(options: Partial<RoomOptions> = {}, quiet = fal
       const settings = parseSettings(payload?.settings);
       if (!settings) return reply(ack, { ok: false, error: "Those room settings are not valid." });
       await detach(socket);
-      const result = manager.createRoom(payload?.name, settings);
+      const result = manager.createRoom(payload?.name, settings, payload?.avatarId);
       if (result.ok) {
         attach(socket, result.data.roomCode, result.data.playerId);
         if (!quiet) log("room_created", { room: result.data.roomCode });
@@ -135,7 +135,7 @@ export function createGameServer(options: Partial<RoomOptions> = {}, quiet = fal
 
     socket.on("join_room", async (payload, ack) => {
       await detach(socket);
-      const result = manager.joinRoom(payload?.name, payload?.roomCode);
+      const result = manager.joinRoom(payload?.name, payload?.roomCode, payload?.avatarId);
       if (result.ok) attach(socket, result.data.roomCode, result.data.playerId);
       reply(ack, result);
     });
@@ -152,6 +152,8 @@ export function createGameServer(options: Partial<RoomOptions> = {}, quiet = fal
       if (!settings) return reply(ack, { ok: false, error: "Those room settings are not valid." });
       inRoom(socket, ack, (code, id) => manager.updateSettings(code, id, settings));
     });
+
+    socket.on("update_avatar", (avatarId, ack) => inRoom(socket, ack, (code, id) => manager.updateAvatar(code, id, avatarId)));
 
     socket.on("start_match", (ack) => inRoom(socket, ack, (code, id) => manager.startMatch(code, id)));
     socket.on("start_next_round", (ack) => inRoom(socket, ack, (code, id) => manager.startNextRound(code, id)));
