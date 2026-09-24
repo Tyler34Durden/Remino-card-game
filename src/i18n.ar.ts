@@ -21,7 +21,7 @@ export const ar: Record<MessageKey, string> = {
   "home.joinButton": "انضمام",
   "home.createButton": "إنشاء الغرفة",
   "home.rules": "اقرأ القواعد",
-  "home.style": "مظهري",
+  "home.style": "خصّص مظهرك",
   "home.nameRequired": "اكتب اسم اللاعب أولاً.",
   "home.back": "رجوع",
 

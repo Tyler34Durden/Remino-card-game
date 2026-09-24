@@ -41,16 +41,19 @@ export function App() {
     document.title = language === "ar" ? "ريمينو — لعبة ورق عبر الإنترنت" : "Remino — Online Card Game";
   }, [language]);
 
-  const themeSwitch = (
-    <button type="button" className="button button-small theme-switch" onClick={toggleTheme}>
-      {dark ? "☀️" : "🌙"} {dark ? t("prefs.light") : t("prefs.dark")}
-    </button>
-  );
-
-  const languageSwitch = (
-    <button type="button" className="button button-small language-switch" lang={language === "ar" ? "en" : "ar"} onClick={() => setLanguageState(language === "ar" ? "en" : "ar")}>
-      {t("app.language")}
-    </button>
+  const homeToolbar = (
+    <div className="home-toolbar">
+      <div className="home-toolbar-group" role="group" aria-label={t("prefs.language")}>
+        <button type="button" lang="en" aria-pressed={language === "en"} onClick={() => setLanguageState("en")}>English</button>
+        <span aria-hidden="true">/</span>
+        <button type="button" lang="ar" aria-pressed={language === "ar"} onClick={() => setLanguageState("ar")}>العربية</button>
+      </div>
+      <div className="home-toolbar-group" role="group" aria-label={t("prefs.theme")}>
+        <button type="button" aria-pressed={!dark} onClick={() => { if (dark) toggleTheme(); }}>{t("prefs.light")}</button>
+        <span aria-hidden="true">/</span>
+        <button type="button" aria-pressed={dark} onClick={() => { if (!dark) toggleTheme(); }}>{t("prefs.dark")}</button>
+      </div>
+    </div>
   );
 
   // Each new result opens the results panel again.
@@ -94,13 +97,10 @@ export function App() {
   if (!room) {
     return (
       <>
-        <div className="language-corner">
-          {themeSwitch}
-          {languageSwitch}
-        </div>
         <Home
           game={game}
           onRules={() => setShowRules(true)}
+          toolbar={homeToolbar}
           avatarId={prefs.avatarId}
           avatarPicker={avatarPicker}
           backgroundPicker={<TableBackgroundPicker value={prefs.tableBackground} onChange={setTableBackground} />}
@@ -114,11 +114,7 @@ export function App() {
   if (room.status === "lobby") {
     return (
       <>
-        <div className="language-corner">
-          {themeSwitch}
-          {languageSwitch}
-        </div>
-        <Lobby game={game} room={room} onRules={() => setShowRules(true)} onLeave={leave} avatarPicker={avatarPicker} />
+        <Lobby game={game} room={room} onRules={() => setShowRules(true)} onLeave={leave} avatarPicker={avatarPicker} toolbar={homeToolbar} />
         {rules}
       </>
     );

@@ -10,6 +10,7 @@ import "./cafe-table.css";
 import "./concept-ui.css";
 import "./shuffle-ritual.css";
 import "./reactions.css";
+import "./home-entry.css";
 
 const root = document.getElementById("root");
 if (root) {

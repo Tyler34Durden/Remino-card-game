@@ -18,7 +18,7 @@ function savedName(): string {
   }
 }
 
-export function Home({ game, onRules, backPicker, backgroundPicker, avatarPicker, avatarId }: { game: Game; onRules: () => void; backPicker?: ReactNode; backgroundPicker: ReactNode; avatarPicker: ReactNode; avatarId: AvatarId }) {
+export function Home({ game, onRules, toolbar, backPicker, backgroundPicker, avatarPicker, avatarId }: { game: Game; onRules: () => void; toolbar: ReactNode; backPicker?: ReactNode; backgroundPicker: ReactNode; avatarPicker: ReactNode; avatarId: AvatarId }) {
   const [name, setName] = useState(savedName);
   const [creating, setCreating] = useState(false);
   const [settings, setSettings] = useState<RoomSettings>(DEFAULT_SETTINGS);
@@ -56,62 +56,71 @@ export function Home({ game, onRules, backPicker, backgroundPicker, avatarPicker
   const error = localError ?? (game.error ? serverText(game.error) : null);
 
   return (
-    <main className="home">
-      <header className="home-hero">
-        <h1>{t("app.title")}</h1>
-        <p>{t("app.taglineSolo")}</p>
-      </header>
+    <main className={`home home-entry${creating ? " home-configuring" : ""}`}>
+      <div className="home-topline">{toolbar}</div>
+      <div className="home-content">
+        <header className="home-hero">
+          <div className="home-card-fan" aria-hidden="true">
+            <img src="/cards/hearts-A.png" alt="" />
+            <img src="/cards/diamonds-A.png" alt="" />
+            <img src="/cards/clubs-A.png" alt="" />
+            <img src="/cards/spades-A.png" alt="" />
+          </div>
+          <h1>{t("app.title")}</h1>
+          <p>{t("app.taglineSolo")}</p>
+        </header>
 
-      <section className="panel">
-        <label className="field">
-          <span>{t("home.name")}</span>
-          <input
-            type="text"
-            value={name}
-            maxLength={20}
-            autoComplete="nickname"
-            placeholder={t("home.namePlaceholder")}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </label>
+        <section className="home-form-area">
+          <label className="field">
+            <span>{t("home.name")}</span>
+            <input
+              type="text"
+              value={name}
+              maxLength={20}
+              autoComplete="nickname"
+              placeholder={t("home.namePlaceholder")}
+              onChange={(e) => setName(e.target.value)}
+            />
+          </label>
 
-        {error && (
-          <p className="error" role="alert">
-            {error}
-          </p>
-        )}
+          {error && (
+            <p className="error" role="alert">
+              {error}
+            </p>
+          )}
 
-        {creating ? (
-          <form onSubmit={create} className="stack">
-            <SettingsForm value={settings} onChange={setSettings} />
-            <div className="row">
-              <button type="button" className="button" onClick={() => setCreating(false)}>
-                {t("home.back")}
-              </button>
-              <button type="submit" className="button button-primary" disabled={busy || !game.connected}>
+          {creating ? (
+            <form onSubmit={create} className="stack">
+              <SettingsForm value={settings} onChange={setSettings} />
+              <div className="row">
+                <button type="button" className="button" onClick={() => setCreating(false)}>
+                  {t("home.back")}
+                </button>
+                <button type="submit" className="button button-primary" disabled={busy || !game.connected}>
+                  {t("home.playSolo")}
+                </button>
+              </div>
+            </form>
+          ) : (
+            <div className="stack">
+              <button type="button" className="button button-primary button-large" onClick={() => setCreating(true)}>
                 {t("home.playSolo")}
               </button>
+              <button type="button" className="button button-quiet" onClick={onRules}>
+                {t("home.rules")}
+              </button>
             </div>
-          </form>
-        ) : (
-          <div className="stack">
-            <button type="button" className="button button-primary button-large" onClick={() => setCreating(true)}>
-              {t("home.playSolo")}
-            </button>
-            <button type="button" className="button button-quiet" onClick={onRules}>
-              {t("home.rules")}
-            </button>
-          </div>
-        )}
-        <details className="home-style">
-          <summary>{t("home.style")}</summary>
-          <div className="home-style-options">
-            {avatarPicker}
-            {backgroundPicker}
-            {backPicker}
-          </div>
-        </details>
-      </section>
+          )}
+          <details className="home-style">
+            <summary>{t("home.style")}</summary>
+            <div className="home-style-options">
+              {avatarPicker}
+              {backgroundPicker}
+              {backPicker}
+            </div>
+          </details>
+        </section>
+      </div>
     </main>
   );
 }

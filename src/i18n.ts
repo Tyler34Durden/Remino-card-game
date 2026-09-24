@@ -22,7 +22,7 @@ const en = {
   "home.joinButton": "Join",
   "home.createButton": "Create room",
   "home.rules": "Read the rules",
-  "home.style": "My style",
+  "home.style": "Customize your look",
   "home.nameRequired": "Enter a display name first.",
   "home.back": "Back",
 
