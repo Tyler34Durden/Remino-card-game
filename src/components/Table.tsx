@@ -6,7 +6,7 @@ import { canReplaceJoker, interpretAddition, interpretNewMeld, legalDiscards, re
 import type { MeldInterpretation } from "../../engine/melds.ts";
 import { validatePlays } from "../../engine/plays.ts";
 import type { PlayContext } from "../../engine/plays.ts";
-import { groupCards, loadLayout, moveCard, normalizeLayout, saveLayout } from "../handLayout.ts";
+import { groupCards, layoutBySuit, loadLayout, moveCard, normalizeLayout, saveLayout } from "../handLayout.ts";
 import type { DropTarget, HandLayout } from "../handLayout.ts";
 import { ltr, t } from "../i18n.ts";
 import { planHand, valueOf } from "../meldPlanner.ts";
@@ -154,6 +154,9 @@ export function Table({ game, room, prefs, tipsOpen, onHideTips, reactionsBlocke
   const [swapChoice, setSwapChoice] = useState<{ meld: TableMeld; jokerId: string; cardId: string; label: string } | null>(null);
   const [busy, setBusy] = useState(false);
   const [reactionsOpen, setReactionsOpen] = useState(false);
+  const [sortOpen, setSortOpen] = useState(false);
+  const sortControl = useRef<HTMLDivElement>(null);
+  const sortTrigger = useRef<HTMLButtonElement>(null);
   const [reaction, setReaction] = useState<ActiveReaction | null>(null);
   const reactionRef = useRef<ActiveReaction | null>(null);
   const reactionId = useRef(0);
@@ -164,6 +167,15 @@ export function Table({ game, room, prefs, tipsOpen, onHideTips, reactionsBlocke
   const botsBlockedRef = useRef(false);
   const lastMeldCount = useRef(room.melds.length);
   const seatsRef = useRef<HTMLUListElement>(null);
+
+  useEffect(() => {
+    if (!sortOpen) return;
+    const closeOutside = (event: PointerEvent) => {
+      if (!sortControl.current?.contains(event.target as Node)) setSortOpen(false);
+    };
+    document.addEventListener("pointerdown", closeOutside);
+    return () => document.removeEventListener("pointerdown", closeOutside);
+  }, [sortOpen]);
 
   const mySeat = room.viewer.seat;
   const me = mySeat !== null ? room.seats[mySeat] : null;
@@ -257,6 +269,7 @@ export function Table({ game, room, prefs, tipsOpen, onHideTips, reactionsBlocke
   // Leave staging whenever the turn, phase, or round moves on.
   useEffect(() => {
     setTaking(false);
+    setSortOpen(false);
     setStaged([]);
     setSelected([]);
     setLocalError(null);
@@ -686,14 +699,31 @@ export function Table({ game, room, prefs, tipsOpen, onHideTips, reactionsBlocke
             />
 
             <div className="actions action-dock">
-              <button
-                type="button"
-                className="button button-small button-sort action-sort"
-                onClick={() => arrange(bestMeldGrouping(visibleHand).map((group) => group.map((c) => c.id)))}
-                title={t("action.sortHint")}
-              >
-                ↕ {t("action.sort")}
-              </button>
+              <div className="sort-control" ref={sortControl} onKeyDown={(event) => {
+                if (event.key === "Escape") { setSortOpen(false); sortTrigger.current?.focus(); }
+              }}>
+                <button
+                  ref={sortTrigger}
+                  type="button"
+                  className="button button-small button-sort action-sort"
+                  aria-expanded={sortOpen}
+                  aria-controls="sort-options"
+                  onClick={() => setSortOpen((open) => !open)}
+                  title={t("action.sortHint")}
+                >
+                  ↕ {t("action.sort")}
+                </button>
+                {sortOpen && (
+                  <div id="sort-options" className="sort-options" role="group" aria-label={t("action.sortHint")}>
+                    <button type="button" onClick={() => { arrange(layoutBySuit(visibleHand)); setSortOpen(false); sortTrigger.current?.focus(); }}>
+                      {t("action.sortSuitAscending")}
+                    </button>
+                    <button type="button" onClick={() => { arrange(bestMeldGrouping(visibleHand).map((group) => group.map((c) => c.id))); setSortOpen(false); sortTrigger.current?.focus(); }}>
+                      {t("action.sortMelds")}
+                    </button>
+                  </div>
+                )}
+              </div>
               {taking ? (
                 <button type="button" className="button button-primary action-main" disabled={!finalCheck?.ok || busy} onClick={() => void confirmTaking()}>
                   {t("action.confirm")}

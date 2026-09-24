@@ -896,6 +896,40 @@
   line-height: 1.15;
 }
 
+.game .sort-control { position: relative; min-width: 0; }
+.game .sort-control .action-sort { width: 100%; }
+.game .sort-options {
+  position: absolute;
+  z-index: 10;
+  bottom: calc(100% + 0.5rem);
+  inset-inline-start: 0;
+  display: grid;
+  gap: 0.2rem;
+  width: max-content;
+  min-width: 12.5rem;
+  max-width: calc(100vw - 1rem);
+  padding: 0.35rem;
+  border: 1px solid #d8bd86;
+  border-radius: 13px;
+  background: #fff6e3;
+  box-shadow: 0 7px 20px rgba(4, 32, 36, 0.35);
+}
+.game .sort-options button {
+  min-height: 2.7rem;
+  padding: 0.45rem 0.7rem;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: #173f49;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 750;
+  text-align: start;
+  cursor: pointer;
+}
+.game .sort-options button:hover,
+.game .sort-options button:focus-visible { background: #fbe3af; outline: 2px solid #b97b31; outline-offset: -2px; }
+
 .game .action-dock .action-sort,
 :root[data-theme="dark"] .game .action-dock .action-sort {
   border: 2px solid #d7e8e4;
