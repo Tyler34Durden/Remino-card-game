@@ -50,7 +50,7 @@ interface JokerChoice {
   onPick: (jokerAs: JokerAssignments) => void;
 }
 
-function SeatChip({ seat, room, handValue, reaction }: { seat: PublicSeat; room: PublicRoomState; handValue?: number; reaction?: ActiveReaction }) {
+function SeatChip({ seat, room, leaderSeat, handValue, reaction }: { seat: PublicSeat; room: PublicRoomState; leaderSeat: number | null; handValue?: number; reaction?: ActiveReaction }) {
   const active = room.activeSeat === seat.seat;
   const isMe = seat.seat === room.viewer.seat;
   const name = localName(seat.name);
@@ -58,6 +58,24 @@ function SeatChip({ seat, room, handValue, reaction }: { seat: PublicSeat; room:
     <li className={`seat-chip${active ? " seat-active" : ""}${isMe ? " seat-me" : ""}${seat.kind === "bot" ? " seat-bot" : ""}`} aria-current={active ? "true" : undefined}>
       <div className="seat-chip-head">
         <span className={`seat-avatar avatar-portrait avatar-portrait-${seat.avatarId}`} aria-hidden="true" />
+        {leaderSeat === seat.seat && (
+          <span className="seat-award seat-award-crown" role="img" aria-label={t("table.leading")}>
+            <svg viewBox="0 0 40 32" aria-hidden="true" focusable="false">
+              <path d="M4 9 11 17 20 5 29 17 36 9 33 25H7Z" fill="#f8be4b" stroke="#764321" strokeWidth="2" strokeLinejoin="round" />
+              <path d="M7 25h26v4H7z" fill="#e68e32" stroke="#764321" strokeWidth="2" strokeLinejoin="round" />
+              <circle cx="20" cy="19" r="2.5" fill="#fff2bb" />
+              <circle cx="4" cy="8" r="2" fill="#ffe597" /><circle cx="20" cy="4" r="2" fill="#ffe597" /><circle cx="36" cy="8" r="2" fill="#ffe597" />
+            </svg>
+          </span>
+        )}
+        {seat.roundWinStreak >= 2 && (
+          <span className="seat-award seat-award-fire" role="img" aria-label={t("table.winStreak", { count: seat.roundWinStreak })}>
+            <svg viewBox="0 0 32 38" aria-hidden="true" focusable="false">
+              <path className="seat-flame-outer" d="M17 2c2 7-1 9 1 13 4-2 5-5 5-8 9 9 9 16 4 23-5 7-17 8-23 0C0 24 4 18 9 14c0 5 2 6 4 7 3-5 1-11 4-19Z" fill="#e96b2c" stroke="#8a3d25" strokeWidth="1.5" strokeLinejoin="round" />
+              <path className="seat-flame-inner" d="M17 18c1 4 6 7 4 12-2 5-9 5-12 0-2-4 2-9 5-11 0 3 1 4 3 5Z" fill="#ffd277" />
+            </svg>
+          </span>
+        )}
         {reaction && (
           <span key={reaction.id} className={`seat-reaction seat-reaction-${reaction.kind}`} data-reaction-id={reaction.id} role="img" aria-label={t(REACTIONS.find((item) => item.kind === reaction.kind)!.label)}>
             <ReactionIcon kind={reaction.kind} />
@@ -507,12 +525,16 @@ export function Table({ game, room, prefs, tipsOpen, onHideTips, reactionsBlocke
     </details>
   );
 
+  const lowestScore = Math.min(...room.seats.map((seat) => seat.score));
+  const leaders = room.seats.filter((seat) => seat.score === lowestScore);
+  const leaderSeat = (room.roundNumber > 1 || room.status !== "playing") && leaders.length === 1 ? leaders[0].seat : null;
+
   return (
     <div className="table">
       <ul className="seats" aria-label={t("lobby.seats")} ref={seatsRef}>
-        {mySeat !== null && me && <SeatChip seat={me} room={room} handValue={playing ? handPenalty(room.hand) : undefined} reaction={reaction?.seat === mySeat ? reaction : undefined} />}
+        {mySeat !== null && me && <SeatChip seat={me} room={room} leaderSeat={leaderSeat} handValue={playing ? handPenalty(room.hand) : undefined} reaction={reaction?.seat === mySeat ? reaction : undefined} />}
         {clockwise.map((seat) => (
-          <SeatChip key={seat.seat} seat={seat} room={room} reaction={reaction?.seat === seat.seat ? reaction : undefined} />
+          <SeatChip key={seat.seat} seat={seat} room={room} leaderSeat={leaderSeat} reaction={reaction?.seat === seat.seat ? reaction : undefined} />
         ))}
       </ul>
 

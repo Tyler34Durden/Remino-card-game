@@ -462,6 +462,7 @@ export class RoomManager {
         cardCount: inRound && round && !room.shuffleRitual ? round.hands[seat].length : 0,
         opened: inRound && round ? round.opened[seat] : false,
         score: match ? match.scores[seat] : 0,
+        roundWinStreak: match ? match.roundWinStreaks[seat] : 0,
       };
     });
     const showResult = room.status === "round-end" || room.status === "match-end";

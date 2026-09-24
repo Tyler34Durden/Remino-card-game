@@ -549,11 +549,13 @@ describe("finishing and scoring", () => {
     const afterOne = winRound(base);
     expect(afterOne.status).toBe("round-end");
     expect(afterOne.roundsCompleted).toBe(1);
+    expect(afterOne.roundWinStreaks).toEqual([1, 0, 0, 0]);
     const second = expectOk(startNextRound(afterOne)).state;
     expect(second.round.roundNumber).toBe(2);
     expect(second.round.dealerSeat).toBe((afterOne.round.dealerSeat + 1) % 4);
     const replay = { ...second, round: { ...base.round, roundNumber: 2 } };
     const afterTwo = winRound(replay);
+    expect(afterTwo.roundWinStreaks).toEqual([2, 0, 0, 0]);
     expect(afterTwo.status).toBe("match-end");
     expect(afterTwo.matchWinnerSeat).toBe(0);
   });
@@ -593,6 +595,8 @@ describe("finishing and scoring", () => {
 
   it("gives a late joiner the current highest score", () => {
     const state = scenario({ hands: [], scores: [12, 40, 7, 33] });
+    state.roundWinStreaks[2] = 3;
     expect(applyLateJoin(state, 2).scores).toEqual([12, 40, 40, 33]);
+    expect(applyLateJoin(state, 2).roundWinStreaks[2]).toBe(0);
   });
 });

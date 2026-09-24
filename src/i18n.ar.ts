@@ -80,6 +80,8 @@ export const ar: Record<MessageKey, string> = {
   "table.hand": "أوراقك",
   "table.cards": "الأوراق: {count}",
   "table.score": "النقاط: {score}",
+  "table.leading": "متصدر بالنقاط",
+  "table.winStreak": "فاز بـ {count} جولات متتالية",
   "table.opened": "فتح",
   "table.notOpened": "لم يفتح",
   "table.dealer": "الموزّع",

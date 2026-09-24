@@ -116,6 +116,8 @@ export interface PublicSeat {
   cardCount: number;
   opened: boolean;
   score: number;
+  /** Consecutive round wins in this match; used only for a visual badge. */
+  roundWinStreak: number;
 }
 
 export interface RoundResult {

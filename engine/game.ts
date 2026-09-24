@@ -29,6 +29,8 @@ export interface MatchState {
   settings: RoomSettings;
   seatCount: number;
   scores: number[];
+  /** Consecutive rounds won by each seat; cosmetic, never affects play or scoring. */
+  roundWinStreaks: number[];
   status: MatchStatus;
   round: RoundState;
   roundsCompleted: number;
@@ -113,6 +115,7 @@ export function createMatch(settings: RoomSettings, seed: number): MatchState {
     settings: { ...settings },
     seatCount,
     scores: Array.from({ length: seatCount }, () => 0),
+    roundWinStreaks: Array.from({ length: seatCount }, () => 0),
     status: "playing",
     round: dealt.round,
     roundsCompleted: 0,
@@ -147,6 +150,7 @@ function finishRound(state: MatchState, winnerSeat: number | null, log: string[]
   const penalties = round.hands.map((hand, seat) => (seat === winnerSeat ? 0 : handPenalty(hand)));
   penalties.forEach((penalty, seat) => {
     state.scores[seat] += penalty;
+    state.roundWinStreaks[seat] = seat === winnerSeat ? state.roundWinStreaks[seat] + 1 : 0;
   });
   state.roundsCompleted += 1;
   state.lastResult = {
@@ -350,6 +354,7 @@ export function endMatchEarly(current: MatchState): ActionResult {
 export function applyLateJoin(current: MatchState, seat: number): MatchState {
   const state = clone(current);
   state.scores[seat] = Math.max(...state.scores);
+  state.roundWinStreaks[seat] = 0;
   state.version += 1;
   return state;
 }

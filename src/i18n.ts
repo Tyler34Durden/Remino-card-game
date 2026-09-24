@@ -81,6 +81,8 @@ const en = {
   "table.hand": "Your hand",
   "table.cards": "{count} cards",
   "table.score": "{score} pts",
+  "table.leading": "Leading on points",
+  "table.winStreak": "{count} round wins in a row",
   "table.opened": "Opened",
   "table.notOpened": "Not opened",
   "table.dealer": "Dealer",

@@ -417,6 +417,53 @@
   margin: 0 auto;
 }
 
+.game .seat-award {
+  position: absolute;
+  z-index: 4;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 2px rgba(42, 27, 13, 0.48));
+}
+
+.game .seat-award svg { display: block; width: 100%; height: 100%; }
+.game .seat-award-crown {
+  width: clamp(1.7rem, 3.1vw, 2.25rem);
+  height: clamp(1.35rem, 2.5vw, 1.8rem);
+  top: -1.35rem;
+  left: 50%;
+  transform: translateX(-50%);
+  animation: seat-crown-appear 650ms ease-out both;
+}
+.game .seat-award-fire {
+  width: clamp(1.25rem, 2.4vw, 1.65rem);
+  height: clamp(1.5rem, 2.9vw, 2rem);
+  top: 0.15rem;
+  inset-inline-start: -0.95rem;
+  animation: seat-fire-sway 1.8s ease-in-out infinite alternate;
+  transform-origin: 50% 90%;
+}
+.game .seat-flame-inner { animation: seat-flame-glow 1.8s ease-in-out infinite alternate; }
+
+@keyframes seat-crown-appear {
+  from { opacity: 0; transform: translate(-50%, 0.3rem) scale(0.82); }
+  to { opacity: 1; transform: translate(-50%, 0) scale(1); }
+}
+@keyframes seat-fire-sway {
+  from { transform: rotate(-5deg) scale(0.96); }
+  to { transform: rotate(5deg) scale(1.04); }
+}
+@keyframes seat-flame-glow {
+  from { opacity: 0.72; }
+  to { opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .game .seat-award, .game .seat-flame-inner { animation: none !important; }
+}
+:root[data-reduced-motion="true"] .game .seat-award,
+:root[data-reduced-motion="true"] .game .seat-flame-inner { animation: none !important; }
+
 .game .seat-avatar {
   display: block;
   width: clamp(4.2rem, 8vw, 6.4rem);
